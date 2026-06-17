@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>채용 허브</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F4F6FA;
+  --surface: #FFFFFF;
+  --border: #E2E6EF;
+  --border-light: #EEF1F7;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-soft: #EFF6FF;
+  --pass-bg: #D1FAE5; --pass-text: #065F46;
+  --fail-bg: #FEE2E2; --fail-text: #991B1B;
+  --pend-bg: #FEF3C7; --pend-text: #92400E;
+  --wait-bg: #F3F4F6; --wait-text: #374151;
+  --s1: #DBEAFE; --s1t: #1D4ED8; --s1b: #BFDBFE;
+  --s2: #EDE9FE; --s2t: #6D28D9; --s2b: #DDD6FE;
+  --s3: #CCFBF1; --s3t: #0F766E; --s3b: #99F6E4;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --panel-w: 310px;
+  --font: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Noto Sans KR', sans-serif;
+}
+body { font-family: var(--font); background: var(--bg); color: var(--text-primary); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+.app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+/* TOP NAV */
+.topnav { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: stretch; justify-content: space-between; height: 52px; flex-shrink: 0; padding: 0 20px; z-index: 20; }
+.nav-left { display: flex; align-items: center; gap: 0; }
+.logo { font-size: 15px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.4px; margin-right: 24px; }
+.logo span { color: var(--accent); }
+.tab-btn { display: flex; align-items: center; gap: 7px; padding: 0 16px; height: 100%; font-size: 13px; font-weight: 500; color: var(--text-muted); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; font-family: var(--font); }
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.sync-badge { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); padding: 4px 10px; background: var(--bg); border-radius: 20px; border: 1px solid var(--border); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #9CA3AF; transition: background 0.3s; }
+.sync-dot.live { background: #22C55E; animation: pulse 2s infinite; }
+.sync-dot.saving { background: #F59E0B; animation: pulse 0.5s infinite; }
+.sync-dot.error { background: #EF4444; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
+.header-stats { display: flex; gap: 14px; font-size: 12px; color: var(--text-secondary); }
+.header-stats strong { color: var(--text-primary); font-weight: 600; }
+
+/* PAGES */
+.page { display: none; flex: 1; overflow: hidden; }
+.page.active { display: flex; }
+
+/* RECRUIT PAGE */
+.list-pane { flex: 1; overflow-y: auto; padding: 20px; min-width: 0; }
+.stage-pane { width: var(--panel-w); flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+.stage-pane-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 2; }
+.stage-pane-title { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: .6px; text-transform: uppercase; }
+.stage-pane-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage-pane-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color: var(--text-muted); gap:10px; padding:24px; text-align:center; }
+.stage-pane-empty .icon { font-size: 28px; }
+.stage-pane-empty p { font-size: 12px; line-height: 1.6; }
+.stage-blocks { padding: 12px 12px 20px; display: flex; flex-direction: column; gap: 9px; }
+.stage-block { border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); transition: box-shadow 0.15s; }
+.stage-block.s1 .stage-block-header { background: var(--s1); }
+.stage-block.s2 .stage-block-header { background: var(--s2); }
+.stage-block.s3 .stage-block-header { background: var(--s3); }
+.stage-block-header { padding: 9px 11px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.stage-block-label { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; }
+.stage-block.s1 .stage-block-label { color: var(--s1t); }
+.stage-block.s2 .stage-block-label { color: var(--s2t); }
+.stage-block.s3 .stage-block-label { color: var(--s3t); }
+.stage-block-body { padding: 9px 11px; background: #FAFBFD; }
+.stage-note-edit { width: 100%; border: none; outline: none; resize: none; font-size: 11px; font-family: var(--font); color: var(--text-primary); background: transparent; line-height: 1.6; min-height: 52px; }
+.stage-note-edit::placeholder { color: var(--text-muted); }
+.stage-block-footer { padding: 6px 11px 9px; background: #FAFBFD; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.stage-status-select { border: 1px solid var(--border); border-radius: 4px; padding: 3px 7px; font-size: 11px; font-family: var(--font); background: white; color: var(--text-primary); outline: none; cursor: pointer; }
+.btn-save-stage { padding: 3px 10px; background: var(--accent); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+.btn-save-stage:hover { background: var(--accent-hover); }
+
+/* TOPBAR */
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 10px; flex-wrap: wrap; }
+.topbar-left { display: flex; align-items: center; gap: 8px; }
+.section-title { font-size: 15px; font-weight: 700; }
+.count-badge { background: var(--accent); color: white; font-size: 10px; font-weight: 600; padding: 1px 8px; border-radius: 20px; }
+.search-input { padding: 7px 11px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; background: var(--surface); color: var(--text-primary); width: 170px; outline: none; transition: border-color .15s; font-family: var(--font); }
+.search-input:focus { border-color: var(--accent); }
+.filter-select { padding: 7px 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; background: var(--surface); color: var(--text-primary); outline: none; cursor: pointer; font-family: var(--font); }
+
+/* TABLE */
+.table-wrap { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--bg); border-bottom: 1px solid var(--border); }
+th { padding: 9px 13px; text-align: left; font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border-light); transition: background .1s; cursor: pointer; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #F8FAFF; }
+tbody tr.active-row { background: #EFF6FF; }
+td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
+.td-name { font-weight: 600; }
+.td-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+.empty-state .icon { font-size: 32px; margin-bottom: 8px; }
+.stage-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.s1b { background: var(--s1); color: var(--s1t); border: 1px solid var(--s1b); }
+.s2b { background: var(--s2); color: var(--s2t); border: 1px solid var(--s2b); }
+.s3b { background: var(--s3); color: var(--s3t); border: 1px solid var(--s3b); }
+.status-badge { display: inline-flex; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.sp { background: var(--pass-bg); color: var(--pass-text); }
+.sf { background: var(--fail-bg); color: var(--fail-text); }
+.sq { background: var(--pend-bg); color: var(--pend-text); }
+.sw { background: var(--wait-bg); color: var(--wait-text); }
+.action-row { display: flex; gap: 4px; }
+.btn-icon { width: 27px; height: 27px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all .15s; }
+.btn-icon:hover { background: var(--bg); border-color: var(--accent); }
+.btn-icon.danger:hover { border-color: #EF4444; }
+
+/* OFFER PAGE */
+.offer-page { flex: 1; overflow-y: auto; padding: 28px 24px 60px; }
+.offer-inner { max-width: 780px; margin: 0 auto; }
+.offer-page .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 12px; }
+.offer-page .section-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.offer-page .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.offer-page .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.offer-page .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.offer-page .field { display: flex; flex-direction: column; gap: 5px; }
+.offer-page .fields-stack { display: flex; flex-direction: column; gap: 12px; }
+.offer-page label { font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+.offer-page input[type=text],.offer-page input[type=number],.offer-page input[type=date],.offer-page select { font-family: var(--font); font-size: 13px; color: var(--text-primary); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; width: 100%; outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; }
+.offer-page input:focus,.offer-page select:focus { border-color: var(--accent); background: #fff; }
+.offer-page select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+.salary-breakdown { background: var(--accent-soft); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 12px; color: var(--text-secondary); margin-top: 8px; min-height: 34px; }
+.salary-breakdown strong { color: var(--text-primary); font-weight: 600; }
+.toggle-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
+.toggle-row label { font-size: 13px; font-weight: 500; color: var(--text-primary); cursor: pointer; }
+.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 99px; cursor: pointer; transition: background 0.2s; }
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; pointer-events: none; }
+.toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+.btn-row { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.offer-btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 10px 22px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: background .15s; }
+.offer-btn-primary:hover { background: var(--accent-hover); }
+.offer-btn-secondary { background: var(--surface); color: var(--text-primary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 20px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font); display: none; }
+.offer-btn-secondary.show { display: inline-block; }
+.notice { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+.preview-wrap { display: none; margin-top: 20px; }
+.preview-wrap.show { display: block; }
+.preview-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 32px; font-size: 13px; line-height: 2; color: var(--text-primary); white-space: pre-wrap; font-family: var(--font); }
+.preview-subject { font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--accent-soft); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; margin-bottom: 10px; }
+.preview-subject span { color: var(--text-primary); }
+.tag { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 6px; border-radius: 99px; }
+.tag-new { background: #D1FAE5; color: #065F46; }
+
+/* MEMO PAGE */
+.memo-page { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.memo-toolbar { padding: 14px 20px 10px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
+.memo-title-text { font-size: 14px; font-weight: 700; }
+.memo-hint { font-size: 11px; color: var(--text-muted); }
+.memo-body { flex: 1; display: flex; overflow: hidden; }
+.memo-list-col { width: 220px; flex-shrink: 0; border-right: 1px solid var(--border); background: var(--surface); overflow-y: auto; display: flex; flex-direction: column; }
+.memo-list-header { padding: 12px 14px 8px; position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; }
+.memo-list-label { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: .5px; text-transform: uppercase; }
+.btn-new-memo { padding: 4px 10px; background: var(--accent); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+.btn-new-memo:hover { background: var(--accent-hover); }
+.memo-item { padding: 11px 14px; cursor: pointer; border-bottom: 1px solid var(--border-light); transition: background .1s; }
+.memo-item:hover { background: var(--bg); }
+.memo-item.active { background: var(--accent-soft); border-left: 3px solid var(--accent); }
+.memo-item-title { font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.memo-item-preview { font-size: 11px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.memo-item-date { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+.memo-empty-list { text-align: center; padding: 40px 14px; color: var(--text-muted); font-size: 12px; }
+.memo-edit-col { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #FAFBFD; }
+.memo-edit-header { padding: 12px 16px 8px; background: var(--surface); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0; }
+.memo-title-input { flex: 1; border: none; outline: none; font-size: 15px; font-weight: 700; font-family: var(--font); color: var(--text-primary); background: transparent; }
+.memo-title-input::placeholder { color: var(--text-muted); font-weight: 400; }
+.memo-edit-actions { display: flex; gap: 6px; }
+.btn-memo-save { padding: 5px 12px; background: var(--accent); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+.btn-memo-save:hover { background: var(--accent-hover); }
+.btn-memo-del { padding: 5px 10px; background: transparent; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; font-size: 11px; cursor: pointer; font-family: var(--font); }
+.btn-memo-del:hover { border-color: #EF4444; color: #EF4444; }
+.memo-content-area { flex: 1; padding: 16px 20px; overflow-y: auto; }
+.memo-textarea { width: 100%; height: 100%; min-height: 300px; border: none; outline: none; resize: none; font-size: 13px; font-family: var(--font); color: var(--text-primary); background: transparent; line-height: 1.8; }
+.memo-textarea::placeholder { color: var(--text-muted); }
+.memo-no-select { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; color: var(--text-muted); }
+.memo-no-select .icon { font-size: 28px; }
+.memo-no-select p { font-size: 12px; }
+
+/* SHARED */
+.btn { padding: 7px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font); }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); color: var(--text-primary); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal { background: var(--surface); border-radius: 14px; width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--surface); z-index: 1; }
+.modal-title { font-size: 14px; font-weight: 700; }
+.modal-close { width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--bg); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+.modal-close:hover { background: var(--border); }
+.modal-body { padding: 18px 20px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-full { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); letter-spacing: .3px; }
+.form-label .req { color: var(--accent); }
+.form-input,.form-select,.form-textarea { padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-primary); background: var(--surface); outline: none; transition: border-color .15s; font-family: var(--font); }
+.form-input:focus,.form-select:focus,.form-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.form-textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
+.stage-section { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.stage-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border-light); }
+.stage-row:last-child { border-bottom: none; }
+.stage-label-cell { padding: 9px 11px; background: var(--bg); border-right: 1px solid var(--border-light); display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+.stage-name { font-size: 10px; font-weight: 700; color: var(--text-primary); }
+.stage-select { padding: 3px 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 10px; background: var(--surface); color: var(--text-primary); outline: none; cursor: pointer; width: 100%; font-family: var(--font); }
+.stage-note-cell { padding: 7px 9px; display: flex; align-items: stretch; }
+.stage-note-cell textarea { width: 100%; border: none; outline: none; font-size: 11px; font-family: var(--font); color: var(--text-primary); resize: none; min-height: 46px; line-height: 1.5; background: transparent; }
+.stage-note-cell textarea::placeholder { color: var(--text-muted); }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; position: sticky; bottom: 0; background: var(--surface); }
+
+/* TOAST */
+.toast-el { position: fixed; bottom: 18px; right: 18px; background: #1F2937; color: white; padding: 9px 15px; border-radius: 8px; font-size: 12px; font-weight: 500; z-index: 2000; animation: toastIn .2s ease; box-shadow: 0 4px 20px rgba(0,0,0,.2); display: flex; align-items: center; gap: 6px; }
+@keyframes toastIn { from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+/* LOADING */
+.loading-overlay { position: fixed; inset: 0; background: rgba(244,246,250,.95); display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 12px; }
+.spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading-text { font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Firebase 연결 중...</div>
+</div>
+
+<div class="app">
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="logo">채용<span>허브</span></div>
+      <button class="tab-btn active" onclick="switchTab('recruit')" id="tab-recruit"><span>📋</span> 채용 관리</button>
+      <button class="tab-btn" onclick="switchTab('offer')" id="tab-offer"><span>✉️</span> 오퍼레터 생성</button>
+      <button class="tab-btn" onclick="switchTab('memo')" id="tab-memo"><span>📝</span> 메모장</button>
+    </div>
+    <div class="nav-right">
+      <div class="header-stats" id="headerStats">
+        <span>전체 <strong id="totalCount">0</strong>명</span>
+        <span>진행중 <strong id="activeCount">0</strong>명</span>
+        <span>합격 <strong id="passCount">0</strong>명</span>
+      </div>
+      <div class="sync-badge">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="lastSyncText">연결 중...</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE 1: RECRUIT -->
+  <div class="page active" id="page-recruit" style="flex-direction:row;">
+    <div class="list-pane">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1 class="section-title">지원자 현황</h1>
+          <span class="count-badge" id="tableCount">0</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <input class="search-input" type="text" id="searchInput" placeholder="이름, 학교, 포지션...">
+          <select class="filter-select" id="stageFilter">
+            <option value="">모든 단계</option>
+            <option value="서류 전형">서류 전형</option>
+            <option value="인적성검사">인적성검사</option>
+            <option value="면접전형(사전과제)">면접전형</option>
+          </select>
+          <select class="filter-select" id="statusFilter">
+            <option value="">모든 현황</option>
+            <option value="검토중">검토중</option>
+            <option value="합격">합격</option>
+            <option value="불합격">불합격</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAddModal()">＋ 지원자 추가</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>지원 포지션</th><th>이름</th><th>학교 / 학과</th><th>예상 직급</th><th>현재 단계</th><th>채용 현황</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="candidateTable"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <div class="icon">📋</div>
+          <p>지원자를 추가해 시작하세요</p>
+        </div>
+      </div>
+    </div>
+    <div class="stage-pane">
+      <div class="stage-pane-header">
+        <div class="stage-pane-title">단계별 현황</div>
+        <div class="stage-pane-name" id="stagePaneName">—</div>
+      </div>
+      <div class="stage-pane-empty" id="stagePaneEmpty">
+        <div class="icon">👆</div>
+        <p>지원자를 선택하면<br>단계별 현황이 표시됩니다</p>
+      </div>
+      <div class="stage-blocks" id="stageBlocks" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: OFFER LETTER -->
+  <div class="page" id="page-offer">
+    <div class="offer-page">
+      <div class="offer-inner">
+        <div style="margin-bottom:20px;">
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">채용 도구</div>
+          <div style="font-size:20px;font-weight:700;letter-spacing:-.3px;">오퍼레터 생성기</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-top:4px;">정보를 입력하면 발송 가능한 메일 본문을 즉시 생성합니다.</div>
+        </div>
+        <div class="card">
+          <div class="section-label">회사 정보</div>
+          <div class="fields-stack">
+            <div class="grid2">
+              <div class="field"><label>회사명</label><input id="o_company" type="text" placeholder="예: 삼성전자 주식회사"></div>
+              <div class="field"><label>인사담당자 이름</label><input id="o_hr_name" type="text" placeholder="예: 김지연"></div>
+            </div>
+            <div class="field" style="max-width:300px;"><label>인사담당자 직함</label><input id="o_hr_title" type="text" placeholder="예: 인재확보팀 팀장"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-label">합격자 정보</div>
+          <div class="grid2">
+            <div class="field"><label>성명</label><input id="o_name" type="text" placeholder="예: 홍길동"></div>
+            <div class="field"><label>포지션</label><input id="o_position" type="text" placeholder="예: 데이터 엔지니어"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-label">처우 조건</div>
+          <div class="fields-stack">
+            <div class="grid2">
+              <div class="field"><label>기본급 연봉 (만원)</label><input id="o_base_annual" type="number" placeholder="예: 3600" oninput="updateSalary()"></div>
+              <div class="field"><label>고정성과상여 연봉 (만원)</label><input id="o_bonus_annual" type="number" placeholder="예: 600" oninput="updateSalary()"></div>
+            </div>
+            <div class="salary-breakdown" id="o_salaryBreakdown">기본급과 고정성과상여를 입력하면 연봉 합계가 표시됩니다.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-label">계약 및 입사 조건</div>
+          <div class="fields-stack">
+            <div class="grid3">
+              <div class="field"><label>희망 입사일</label><input id="o_start_date" type="date"></div>
+              <div class="field"><label>수락 회신 기한</label><input id="o_deadline" type="date"></div>
+              <div class="field"><label>계약 기간</label>
+                <select id="o_contract_period" onchange="toggleContract()">
+                  <option value="6개월">6개월</option><option value="1년">1년</option><option value="기타">기타</option>
+                </select>
+              </div>
+            </div>
+            <div class="field" id="o_contract_custom_wrap" style="display:none;max-width:200px;"><label>계약 기간 직접 입력</label><input id="o_contract_custom" type="text" placeholder="예: 9개월"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-label">입사 가능일 회신 요청 <span class="tag tag-new">new</span></div>
+          <div class="toggle-row">
+            <label class="toggle"><input type="checkbox" id="o_ask_avail" checked onchange="toggleAvail()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+            <label for="o_ask_avail">합격자에게 입사 가능일 회신 요청 포함</label>
+          </div>
+          <div id="o_avail_options">
+            <div class="fields-stack">
+              <div class="grid2">
+                <div class="field"><label>조율 가능 시작일</label><input id="o_avail_from" type="date"></div>
+                <div class="field"><label>조율 가능 종료일</label><input id="o_avail_to" type="date"></div>
+              </div>
+              <div class="field"><label>회신 시 요청할 정보 (쉼표로 구분)</label><input id="o_avail_extra" type="text" placeholder="예: 입사 가능일, 현 직장 퇴사 예정일, 특이사항"></div>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="offer-btn-primary" onclick="generateOffer()">메일 본문 생성</button>
+          <button class="offer-btn-secondary" id="o_copyBtn" onclick="copyOffer()">본문 복사</button>
+          <button class="offer-btn-secondary" id="o_resetBtn" onclick="resetOffer()" style="display:none;">초기화</button>
+        </div>
+        <p class="notice">* 입력하지 않은 항목은 [대괄호]로 표시됩니다. 발송 전 반드시 확인하세요.</p>
+        <div class="preview-wrap" id="o_previewWrap">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><h2 style="font-size:14px;font-weight:600;">생성된 메일 본문</h2></div>
+          <div class="preview-subject" id="o_previewSubject"></div>
+          <div class="preview-box" id="o_preview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: MEMO -->
+  <div class="page" id="page-memo" style="flex-direction:column;">
+    <div class="memo-page">
+      <div class="memo-toolbar">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="memo-title-text">메모장</div>
+          <div class="memo-hint">기능 아이디어, 개선사항을 자유롭게 메모하세요</div>
+        </div>
+      </div>
+      <div class="memo-body">
+        <div class="memo-list-col">
+          <div class="memo-list-header">
+            <div class="memo-list-label">메모 목록</div>
+            <button class="btn-new-memo" onclick="newMemo()">＋ 새 메모</button>
+          </div>
+          <div id="memoList"></div>
+        </div>
+        <div class="memo-edit-col">
+          <div class="memo-no-select" id="memoNoSelect">
+            <div class="icon">📝</div>
+            <p>메모를 선택하거나 새로 만드세요</p>
+          </div>
+          <div id="memoEditor" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+            <div class="memo-edit-header">
+              <input class="memo-title-input" id="memoTitleInput" placeholder="메모 제목..." oninput="memoChanged()">
+              <div class="memo-edit-actions">
+                <button class="btn-memo-save" onclick="saveMemo()">저장</button>
+                <button class="btn-memo-del" onclick="deleteMemo()">삭제</button>
+              </div>
+            </div>
+            <div class="memo-content-area">
+              <textarea class="memo-textarea" id="memoContentInput" placeholder="여기에 자유롭게 작성하세요...&#10;&#10;예) 다음에 추가하고 싶은 기능, 개선사항, 팀 공유 메모 등" oninput="memoChanged()"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CANDIDATE MODAL -->
+<div class="modal-overlay" id="addModal" style="display:none;" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">지원자 추가</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">지원 포지션 <span class="req">*</span></label><input class="form-input" id="f_position" placeholder="예: 백엔드 개발자"></div>
+        <div class="form-group"><label class="form-label">이름 <span class="req">*</span></label><input class="form-input" id="f_name" placeholder="홍길동"></div>
+        <div class="form-group"><label class="form-label">학교</label><input class="form-input" id="f_school" placeholder="예: 서울대학교"></div>
+        <div class="form-group"><label class="form-label">학과</label><input class="form-input" id="f_major" placeholder="예: 컴퓨터공학과"></div>
+        <div class="form-group"><label class="form-label">예상 직급</label><input class="form-input" id="f_grade" placeholder="예: 대리, 사원"></div>
+        <div class="form-group"><label class="form-label">현재 단계</label>
+          <select class="form-select" id="f_stage">
+            <option value="서류 전형">서류 전형</option>
+            <option value="인적성검사">인적성검사</option>
+            <option value="면접전형(사전과제)">면접전형(사전과제)</option>
+          </select>
+        </div>
+        <div class="form-group form-full"><label class="form-label">채용 현황</label>
+          <select class="form-select" id="f_status">
+            <option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">단계별 메모 / 할 일</label>
+          <div class="stage-section">
+            <div class="stage-row">
+              <div class="stage-label-cell"><div class="stage-name">📄 서류 전형</div><select class="stage-select" id="f_s1_status"><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
+              <div class="stage-note-cell"><textarea id="f_s1_note" placeholder="서류 전형 할 일, 메모..."></textarea></div>
+            </div>
+            <div class="stage-row">
+              <div class="stage-label-cell"><div class="stage-name">🧠 인적성검사</div><select class="stage-select" id="f_s2_status"><option value="대기">대기</option><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
+              <div class="stage-note-cell"><textarea id="f_s2_note" placeholder="인적성검사 일정, 메모..."></textarea></div>
+            </div>
+            <div class="stage-row">
+              <div class="stage-label-cell"><div class="stage-name">🎯 면접전형</div><select class="stage-select" id="f_s3_status"><option value="대기">대기</option><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
+              <div class="stage-note-cell"><textarea id="f_s3_note" placeholder="면접 일정, 사전과제 내용..."></textarea></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveCandidate()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue, set, remove, push, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ── Firebase Config ──
+const app = initializeApp({
+  apiKey: "AIzaSyPlaceholder",
+  databaseURL: "https://recruiting-6c0af-default-rtdb.firebaseio.com"
+});
+const db = getDatabase(app);
+
+// ── State ──
+let candidates    = {};   // { id: {...} }
+let memos         = {};
+let selectedId    = null;
+let editingId     = null;
+let selectedMemoId = null;
+let memoUnsaved   = false;
+let _ignoreNext   = false; // suppress re-render flicker on own writes
+
+// ── Sync UI ──
+function setSyncState(state) {
+  const dot  = document.getElementById('syncDot');
+  const text = document.getElementById('lastSyncText');
+  dot.className = 'sync-dot';
+  if (state === 'live')   { dot.classList.add('live');   text.textContent = '실시간 연결됨'; }
+  if (state === 'saving') { dot.classList.add('saving'); text.textContent = '저장 중...'; }
+  if (state === 'error')  { dot.classList.add('error');  text.textContent = '연결 오류'; }
+}
+
+// ── Tab ──
+window.switchTab = function(tab) {
+  ['recruit','offer','memo'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('page-'+t).classList.toggle('active', t===tab);
+  });
+  document.getElementById('headerStats').style.display = tab==='recruit' ? 'flex' : 'none';
+};
+
+// ══════════════════════════════════════════════
+// REALTIME LISTENERS
+// ══════════════════════════════════════════════
+onValue(ref(db, 'candidates'), snapshot => {
+  candidates = snapshot.val() || {};
+  renderAll();
+  setSyncState('live');
+  document.getElementById('loadingOverlay').style.display = 'none';
+}, err => {
+  setSyncState('error');
+  document.getElementById('loadingOverlay').style.display = 'none';
+  toast('❌ Firebase 연결 실패: ' + err.message);
+});
+
+onValue(ref(db, 'memos'), snapshot => {
+  memos = snapshot.val() || {};
+  renderMemoList();
+});
+
+// ══════════════════════════════════════════════
+// RECRUIT — RENDER
+// ══════════════════════════════════════════════
+function getFiltered() {
+  const s   = document.getElementById('searchInput').value.toLowerCase();
+  const stg = document.getElementById('stageFilter').value;
+  const sts = document.getElementById('statusFilter').value;
+  return Object.values(candidates).filter(c => {
+    const ms = !s || [c.name,c.school,c.position,c.major].some(f=>f&&f.toLowerCase().includes(s));
+    return ms && (!stg||c.stage===stg) && (!sts||c.status===sts);
+  }).sort((a,b) => (a.createdAt||'') > (b.createdAt||'') ? -1 : 1);
+}
+
+function stageBadge(stage) {
+  const m={'서류 전형':['s1b','📄 서류'],'인적성검사':['s2b','🧠 인적성'],'면접전형(사전과제)':['s3b','🎯 면접']};
+  const [cls,lbl]=m[stage]||['s1b',stage];
+  return `<span class="stage-badge ${cls}">${lbl}</span>`;
+}
+function statusBadge(s) {
+  const m={'합격':'sp','불합격':'sf','검토중':'sq','대기':'sw'};
+  return `<span class="status-badge ${m[s]||'sw'}">${s}</span>`;
+}
+
+function renderAll() {
+  const filtered = getFiltered();
+  const all = Object.values(candidates);
+  document.getElementById('tableCount').textContent  = filtered.length;
+  document.getElementById('totalCount').textContent  = all.length;
+  document.getElementById('activeCount').textContent = all.filter(c=>c.status==='검토중').length;
+  document.getElementById('passCount').textContent   = all.filter(c=>c.status==='합격').length;
+
+  const tbody = document.getElementById('candidateTable');
+  const empty = document.getElementById('emptyState');
+  document.getElementById('searchInput').addEventListener('input', renderAll);
+  document.getElementById('stageFilter').addEventListener('change', renderAll);
+  document.getElementById('statusFilter').addEventListener('change', renderAll);
+
+  if (!filtered.length) {
+    tbody.innerHTML=''; empty.style.display='block';
+  } else {
+    empty.style.display='none';
+    tbody.innerHTML = filtered.map(c=>`
+      <tr class="${selectedId===c.id?'active-row':''}" onclick="window._selectCandidate('${c.id}')">
+        <td>${c.position||'—'}</td>
+        <td><div class="td-name">${c.name}</div><div class="td-sub">${c.createdAt||''}</div></td>
+        <td><div>${c.school||'—'}</div><div class="td-sub">${c.major||''}</div></td>
+        <td>${c.grade||'—'}</td>
+        <td>${stageBadge(c.stage)}</td>
+        <td>${statusBadge(c.status)}</td>
+        <td onclick="event.stopPropagation()">
+          <div class="action-row">
+            <button class="btn-icon" onclick="window._openEditModal('${c.id}')">✏️</button>
+            <button class="btn-icon danger" onclick="window._deleteCandidate('${c.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+  if (selectedId && candidates[selectedId]) renderStagePanel(candidates[selectedId]);
+  else if (selectedId) clearStagePanel();
+}
+
+// ── Stage Panel ──
+window._selectCandidate = function(id) {
+  selectedId = id;
+  renderAll();
+  if (candidates[id]) renderStagePanel(candidates[id]);
+};
+
+function renderStagePanel(c) {
+  document.getElementById('stagePaneName').textContent = `${c.name} · ${c.position||''}`;
+  document.getElementById('stagePaneEmpty').style.display = 'none';
+  document.getElementById('stageBlocks').style.display = 'flex';
+  const stages = [
+    {key:'s1',icon:'📄',label:'서류 전형',         cls:'s1',nk:'s1_note',sk:'s1_status',ph:'서류 전형 할 일, 검토 내용...'},
+    {key:'s2',icon:'🧠',label:'인적성검사',         cls:'s2',nk:'s2_note',sk:'s2_status',ph:'인적성검사 일정, 주의사항...'},
+    {key:'s3',icon:'🎯',label:'면접전형 (사전과제)', cls:'s3',nk:'s3_note',sk:'s3_status',ph:'면접 일정, 사전과제 내용...'},
+  ];
+  document.getElementById('stageBlocks').innerHTML = stages.map(s => {
+    const status = c[s.sk]||'대기', note = c[s.nk]||'';
+    return `
+      <div class="stage-block ${s.cls}">
+        <div class="stage-block-header">
+          <div class="stage-block-label">${s.icon} ${s.label}</div>
+          ${statusBadge(status)}
+        </div>
+        <div class="stage-block-body">
+          <textarea class="stage-note-edit" id="note_${s.key}" placeholder="${s.ph}"
+            oninput="autoResize(this)">${note}</textarea>
+        </div>
+        <div class="stage-block-footer">
+          <select class="stage-status-select" id="sel_${s.key}">
+            ${['대기','검토중','합격','불합격'].map(v=>`<option value="${v}"${v===status?' selected':''}>${v}</option>`).join('')}
+          </select>
+          <button class="btn-save-stage" onclick="window._saveStage('${c.id}','${s.sk}','${s.nk}','${s.key}')">저장</button>
+        </div>
+      </div>`;
+  }).join('');
+  document.querySelectorAll('.stage-note-edit').forEach(autoResize);
+}
+
+function clearStagePanel() {
+  document.getElementById('stagePaneName').textContent = '—';
+  document.getElementById('stagePaneEmpty').style.display = 'flex';
+  document.getElementById('stageBlocks').style.display = 'none';
+}
+window.autoResize = function(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; };
+
+window._saveStage = async function(id, sk, nk, key) {
+  setSyncState('saving');
+  const update = {};
+  update[sk] = document.getElementById('sel_'+key).value;
+  update[nk] = document.getElementById('note_'+key).value.trim();
+  const existing = candidates[id] || {};
+  await set(ref(db, 'candidates/'+id), {...existing, ...update});
+  setSyncState('live');
+  toast('✅ 저장되었습니다');
+};
+
+// ── Modal ──
+window.openAddModal = function() {
+  editingId=null;
+  document.getElementById('modalTitle').textContent='지원자 추가';
+  clearForm();
+  document.getElementById('addModal').style.display='flex';
+};
+window._openEditModal = function(id) {
+  const c=candidates[id]; if(!c) return;
+  editingId=id;
+  document.getElementById('modalTitle').textContent='지원자 수정';
+  document.getElementById('f_position').value=c.position||'';
+  document.getElementById('f_name').value=c.name||'';
+  document.getElementById('f_school').value=c.school||'';
+  document.getElementById('f_major').value=c.major||'';
+  document.getElementById('f_grade').value=c.grade||'';
+  document.getElementById('f_stage').value=c.stage||'서류 전형';
+  document.getElementById('f_status').value=c.status||'검토중';
+  document.getElementById('f_s1_status').value=c.s1_status||'검토중';
+  document.getElementById('f_s1_note').value=c.s1_note||'';
+  document.getElementById('f_s2_status').value=c.s2_status||'대기';
+  document.getElementById('f_s2_note').value=c.s2_note||'';
+  document.getElementById('f_s3_status').value=c.s3_status||'대기';
+  document.getElementById('f_s3_note').value=c.s3_note||'';
+  document.getElementById('addModal').style.display='flex';
+};
+function clearForm() {
+  ['f_position','f_name','f_school','f_major','f_grade','f_s1_note','f_s2_note','f_s3_note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_stage').value='서류 전형';
+  document.getElementById('f_status').value='검토중';
+  document.getElementById('f_s1_status').value='검토중';
+  document.getElementById('f_s2_status').value='대기';
+  document.getElementById('f_s3_status').value='대기';
+}
+window.closeModal = function() { document.getElementById('addModal').style.display='none'; };
+
+window.saveCandidate = async function() {
+  const name=document.getElementById('f_name').value.trim();
+  const position=document.getElementById('f_position').value.trim();
+  if(!name){toast('⚠️ 이름을 입력해 주세요');return;}
+  if(!position){toast('⚠️ 포지션을 입력해 주세요');return;}
+  const today=new Date().toLocaleDateString('ko-KR',{year:'2-digit',month:'2-digit',day:'2-digit'});
+  const data={position,name,
+    school:document.getElementById('f_school').value.trim(),
+    major:document.getElementById('f_major').value.trim(),
+    grade:document.getElementById('f_grade').value.trim(),
+    stage:document.getElementById('f_stage').value,
+    status:document.getElementById('f_status').value,
+    s1_status:document.getElementById('f_s1_status').value,
+    s1_note:document.getElementById('f_s1_note').value.trim(),
+    s2_status:document.getElementById('f_s2_status').value,
+    s2_note:document.getElementById('f_s2_note').value.trim(),
+    s3_status:document.getElementById('f_s3_status').value,
+    s3_note:document.getElementById('f_s3_note').value.trim(),
+  };
+  setSyncState('saving');
+  if(editingId) {
+    data.id=editingId; data.createdAt=(candidates[editingId]||{}).createdAt||today;
+    await set(ref(db,'candidates/'+editingId), data);
+    toast('✅ 수정되었습니다');
+  } else {
+    const newRef = push(ref(db,'candidates'));
+    data.id=newRef.key; data.createdAt=today;
+    selectedId=newRef.key;
+    await set(newRef, data);
+    toast('✅ 추가되었습니다');
+  }
+  setSyncState('live');
+  closeModal();
+};
+
+window._deleteCandidate = async function(id) {
+  const c=candidates[id];
+  if(!c||!confirm(`${c.name} 님을 삭제하시겠습니까?`)) return;
+  if(selectedId===id){selectedId=null;clearStagePanel();}
+  setSyncState('saving');
+  await remove(ref(db,'candidates/'+id));
+  setSyncState('live');
+  toast('🗑 삭제되었습니다');
+};
+
+// ══════════════════════════════════════════════
+// OFFER LETTER
+// ══════════════════════════════════════════════
+window.toggleContract = function() {
+  document.getElementById('o_contract_custom_wrap').style.display=document.getElementById('o_contract_period').value==='기타'?'':'none';
+};
+window.toggleAvail = function() {
+  document.getElementById('o_avail_options').style.display=document.getElementById('o_ask_avail').checked?'':'none';
+};
+window.updateSalary = function() {
+  const base=parseInt(document.getElementById('o_base_annual').value)||0;
+  const bonus=parseInt(document.getElementById('o_bonus_annual').value)||0;
+  const el=document.getElementById('o_salaryBreakdown');
+  if(!base&&!bonus){el.innerHTML='기본급과 고정성과상여를 입력하면 연봉 합계가 표시됩니다.';return;}
+  const total=base+bonus,mb=Math.round(base/12);
+  el.innerHTML='연봉 합계: <strong>'+total.toLocaleString('ko-KR')+'만원</strong>'+(base?' &nbsp;|&nbsp; 월 기본급: <strong>'+mb.toLocaleString('ko-KR')+'만원</strong>':'')+(bonus?' &nbsp;|&nbsp; 고정성과상여: <strong>'+bonus.toLocaleString('ko-KR')+'만원</strong>':'');
+};
+function ofmt(id,fb){const v=(document.getElementById(id).value||'').trim();return v||fb;}
+function ofmtDate(id,fb){const v=document.getElementById(id).value;if(!v)return fb||'';const d=new Date(v);if(isNaN(d))return fb||'';return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일';}
+window.generateOffer = function() {
+  const company=ofmt('o_company','[회사명]'),hrName=ofmt('o_hr_name','[담당자명]'),hrTitle=ofmt('o_hr_title','[직함]');
+  const name=ofmt('o_name','[성명]'),position=ofmt('o_position','[포지션]');
+  const baseRaw=document.getElementById('o_base_annual').value,bonusRaw=document.getElementById('o_bonus_annual').value;
+  const base=baseRaw?parseInt(baseRaw):null,bonus=bonusRaw?parseInt(bonusRaw):null;
+  const total=(base||0)+(bonus||0),mb=base?Math.round(base/12):null;
+  const salaryStr=total?total.toLocaleString('ko-KR')+'만원':'[연봉]';
+  const baseMonthStr=mb?mb.toLocaleString('ko-KR')+'만원':'[기본급]';
+  const bonusStr=bonus?bonus.toLocaleString('ko-KR')+'만원':'[고정성과상여]';
+  const startDate=ofmtDate('o_start_date','[입사 예정일]'),deadline=ofmtDate('o_deadline','[수락 회신 기한]');
+  const cSel=document.getElementById('o_contract_period').value;
+  const cPeriod=cSel==='기타'?ofmt('o_contract_custom','[계약 기간]'):cSel;
+  const askAvail=document.getElementById('o_ask_avail').checked;
+  const aFrom=ofmtDate('o_avail_from',''),aTo=ofmtDate('o_avail_to','');
+  const extraRaw=ofmt('o_avail_extra','');
+  let aRange='';
+  if(aFrom&&aTo)aRange=aFrom+' ~ '+aTo+' 사이';
+  else if(aFrom)aRange=aFrom+' 이후';else if(aTo)aRange=aTo+' 이전';
+  const extraItems=extraRaw?extraRaw.split(',').map(s=>s.trim()).filter(Boolean):['입사 가능일','현 직장 퇴사 예정일'];
+  const extraList=extraItems.map(e=>'    - '+e).join('\n');
+  const availBlock=askAvail?'\n수락 회신 시 아래 정보도 함께 알려 주시면 입사 일정을 원활히 조율하는 데 도움이 됩니다.\n\n'+extraList+'\n'+(aRange?'  (조율 가능 기간: '+aRange+')\n':''):'';
+  const today=new Date(),todayStr=today.getFullYear()+'년 '+(today.getMonth()+1)+'월 '+today.getDate()+'일';
+  const subject='[합격 안내] '+company+' '+position+' 포지션 최종 합격을 축하드립니다';
+  const body=name+' 님께\n\n안녕하세요. '+company+' '+hrTitle+' '+hrName+'입니다.\n\n바쁘신 중에도 채용 전형에 성실히 임해주셔서 진심으로 감사드립니다.\n\n심도 있는 검토 끝에, '+name+' 님을 '+position+' (계약직)으로 채용하기로 결정하였음을 기쁜 마음으로 전달드립니다.\n\n아래와 같이 처우 조건을 안내해 드리오니 내용을 확인하시고 수락 여부를 회신 기한 내에 알려 주시기 바랍니다.\n\n────────────────────────────────────\n■ 처우 조건 안내\n\n  • 포지션: '+position+' (계약직)\n  • 연봉: '+salaryStr+' (기본급 + 고정성과상여)\n  • 기본급: 연 '+(base?base.toLocaleString('ko-KR')+'만원':'[기본급]')+' / 월 '+baseMonthStr+'\n  • 고정성과상여: 연 '+bonusStr+'\n\n■ 계약 조건\n\n  • 계약 기간: '+cPeriod+'\n  • 계약 만료 후 계약 기간 내 성과를 바탕으로 정직원 전환 심사 예정\n\n■ 입사 일정\n\n  • 희망 입사일 (회사 기준): '+startDate+'\n  • 수락 회신 기한: '+deadline+'\n────────────────────────────────────\n'+availBlock+'\n상기 조건에 동의하신다면 '+deadline+'까지 본 메일에 회신 부탁드립니다.\n궁금하신 사항이 있으시면 언제든지 연락 주십시오.\n\n'+name+' 님과 함께 일하게 되기를 진심으로 기대합니다.\n\n감사합니다.\n\n'+todayStr+'\n\n'+company+'\n'+hrTitle+' '+hrName+' 드림';
+  document.getElementById('o_previewSubject').innerHTML='제목: <span>'+subject+'</span>';
+  document.getElementById('o_preview').textContent=body;
+  document.getElementById('o_previewWrap').classList.add('show');
+  document.getElementById('o_copyBtn').classList.add('show');
+  document.getElementById('o_resetBtn').style.display='inline-block';
+  document.getElementById('o_previewWrap').scrollIntoView({behavior:'smooth',block:'start'});
+  window._offerSubject=subject;window._offerBody=body;
+};
+window.copyOffer = function() {
+  navigator.clipboard.writeText('제목: '+(window._offerSubject||'')+'\n\n'+(window._offerBody||'')).then(()=>toast('📋 클립보드에 복사되었습니다'));
+};
+window.resetOffer = function() {
+  document.querySelectorAll('#page-offer input[type=text],#page-offer input[type=number],#page-offer input[type=date]').forEach(el=>el.value='');
+  document.getElementById('o_contract_period').value='6개월';
+  document.getElementById('o_contract_custom_wrap').style.display='none';
+  document.getElementById('o_ask_avail').checked=true;toggleAvail();updateSalary();
+  document.getElementById('o_previewWrap').classList.remove('show');
+  document.getElementById('o_copyBtn').classList.remove('show');
+  document.getElementById('o_resetBtn').style.display='none';
+};
+
+// ══════════════════════════════════════════════
+// MEMO
+// ══════════════════════════════════════════════
+function renderMemoList() {
+  const el=document.getElementById('memoList');
+  const list=Object.values(memos).sort((a,b)=>(b.updatedAt||'')>(a.updatedAt||'')?1:-1);
+  if(!list.length){el.innerHTML='<div class="memo-empty-list">메모가 없습니다.<br>새 메모를 작성하세요.</div>';return;}
+  el.innerHTML=list.map(m=>`
+    <div class="memo-item${selectedMemoId===m.id?' active':''}" onclick="window._selectMemo('${m.id}')">
+      <div class="memo-item-title">${m.title||'제목 없음'}</div>
+      <div class="memo-item-preview">${(m.content||'').replace(/\n/g,' ').slice(0,40)||'내용 없음'}</div>
+      <div class="memo-item-date">${m.updatedAt||''}</div>
+    </div>`).join('');
+}
+
+window._selectMemo = function(id) {
+  if(memoUnsaved&&!confirm('저장하지 않은 내용이 있습니다. 이동하시겠습니까?')) return;
+  selectedMemoId=id;
+  const m=memos[id]; if(!m) return;
+  document.getElementById('memoTitleInput').value=m.title||'';
+  document.getElementById('memoContentInput').value=m.content||'';
+  document.getElementById('memoNoSelect').style.display='none';
+  document.getElementById('memoEditor').style.display='flex';
+  memoUnsaved=false;
+  renderMemoList();
+};
+
+window.newMemo = async function() {
+  if(memoUnsaved&&!confirm('저장하지 않은 내용이 있습니다. 계속하시겠습니까?')) return;
+  const today=new Date().toLocaleDateString('ko-KR',{year:'2-digit',month:'2-digit',day:'2-digit'});
+  const newRef=push(ref(db,'memos'));
+  const m={id:newRef.key,title:'',content:'',createdAt:today,updatedAt:today};
+  await set(newRef,m);
+  selectedMemoId=newRef.key;
+  document.getElementById('memoTitleInput').value='';
+  document.getElementById('memoContentInput').value='';
+  document.getElementById('memoNoSelect').style.display='none';
+  document.getElementById('memoEditor').style.display='flex';
+  document.getElementById('memoTitleInput').focus();
+  memoUnsaved=false;
+};
+
+window.memoChanged = function() { memoUnsaved=true; };
+
+window.saveMemo = async function() {
+  if(!selectedMemoId) return;
+  const today=new Date().toLocaleDateString('ko-KR',{year:'2-digit',month:'2-digit',day:'2-digit'});
+  const existing=memos[selectedMemoId]||{};
+  const data={...existing,
+    id:selectedMemoId,
+    title:document.getElementById('memoTitleInput').value.trim()||'제목 없음',
+    content:document.getElementById('memoContentInput').value,
+    updatedAt:today
+  };
+  setSyncState('saving');
+  await set(ref(db,'memos/'+selectedMemoId),data);
+  setSyncState('live');
+  memoUnsaved=false;
+  toast('✅ 메모 저장됨');
+};
+
+window.deleteMemo = async function() {
+  if(!selectedMemoId||!confirm('이 메모를 삭제하시겠습니까?')) return;
+  await remove(ref(db,'memos/'+selectedMemoId));
+  selectedMemoId=null; memoUnsaved=false;
+  document.getElementById('memoNoSelect').style.display='flex';
+  document.getElementById('memoEditor').style.display='none';
+  toast('🗑 메모 삭제됨');
+};
+
+// ── Toast ──
+window.toast = function(msg) {
+  document.querySelectorAll('.toast-el').forEach(e=>e.remove());
+  const t=document.createElement('div');t.className='toast-el';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2800);
+};
+</script>
+</body>
+</html>
