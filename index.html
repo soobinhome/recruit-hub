@@ -276,7 +276,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
       <button class="tab-btn active" onclick="switchTab('recruit')" id="tab-recruit"><span>📋</span> 채용 관리</button>
       <button class="tab-btn" onclick="switchTab('offer')" id="tab-offer"><span>✉️</span> 오퍼레터 생성</button>
       <button class="tab-btn" onclick="switchTab('memo')" id="tab-memo"><span>📝</span> 메모장</button>
-      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 서류</button>
+      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 계약 서류</button>
     </div>
     <div class="nav-right">
       <div class="header-stats" id="headerStats">
@@ -470,7 +470,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
     <div class="docs-page">
       <div class="docs-inner">
         <div class="docs-hero">
-          <div class="docs-hero-title">📄 서류 인쇄</div>
+          <div class="docs-hero-title">📄 계약 서류 인쇄</div>
           <div class="docs-hero-desc">버튼 하나로 전체 서류를 한 번에 열거나, 개별 서류를 따로 열어 인쇄할 수 있어요.</div>
         </div>
         <div class="docs-all-btn-wrap">
@@ -484,8 +484,8 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
             <div class="docs-card-title">기업비밀 및 개인정보 보호서약서</div>
             <div class="docs-card-desc">재직 중·퇴직 후 기밀정보 보호 및 경업금지 서약</div>
             <div class="docs-card-actions">
-              <button class="docs-btn-open" onclick="openDoc('■공통_기업비밀 및 개인정보 보호 서약서.pdf')">🔗 열기</button>
-              <button class="docs-btn-print" onclick="printDoc('■공통_기업비밀 및 개인정보 보호 서약서.pdf')">🖨️ 인쇄</button>
+              <button class="docs-btn-open" onclick="openDoc('01_기업비밀및개인정보보호서약서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('01_기업비밀및개인정보보호서약서.pdf')">🖨️ 인쇄</button>
             </div>
           </div>
           <div class="docs-card">
@@ -494,8 +494,8 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
             <div class="docs-card-title">연봉 비밀서약서</div>
             <div class="docs-card-desc">급여 관련 비밀유지 의무 확인서</div>
             <div class="docs-card-actions">
-              <button class="docs-btn-open" onclick="openDoc('■공통_연봉비밀서약서.pdf')">🔗 열기</button>
-              <button class="docs-btn-print" onclick="printDoc('■공통_연봉비밀서약서.pdf')">🖨️ 인쇄</button>
+              <button class="docs-btn-open" onclick="openDoc('02_연봉비밀서약서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('02_연봉비밀서약서.pdf')">🖨️ 인쇄</button>
             </div>
           </div>
           <div class="docs-card">
@@ -504,8 +504,8 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
             <div class="docs-card-title">연장·야간근로 합의서</div>
             <div class="docs-card-desc">연장근로 및 야간·휴일근로 동의서</div>
             <div class="docs-card-actions">
-              <button class="docs-btn-open" onclick="openDoc('■공통_연장야간근으로 합의서.pdf')">🔗 열기</button>
-              <button class="docs-btn-print" onclick="printDoc('■공통_연장야간근으로 합의서.pdf')">🖨️ 인쇄</button>
+              <button class="docs-btn-open" onclick="openDoc('03_연장야간근로합의서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('03_연장야간근로합의서.pdf')">🖨️ 인쇄</button>
             </div>
           </div>
           <div class="docs-card">
@@ -514,8 +514,8 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
             <div class="docs-card-title">개인정보 수집·이용 동의서</div>
             <div class="docs-card-desc">임직원 개인정보 수집·이용 및 제3자 제공 동의</div>
             <div class="docs-card-actions">
-              <button class="docs-btn-open" onclick="openDoc('■공통_온라인동의서_개인정보수집이용동의서.pdf')">🔗 열기</button>
-              <button class="docs-btn-print" onclick="printDoc('■공통_온라인동의서_개인정보수집이용동의서.pdf')">🖨️ 인쇄</button>
+              <button class="docs-btn-open" onclick="openDoc('04_개인정보수집이용동의서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('04_개인정보수집이용동의서.pdf')">🖨️ 인쇄</button>
             </div>
           </div>
           <div class="docs-card">
@@ -524,8 +524,8 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
             <div class="docs-card-title">윤리서약서</div>
             <div class="docs-card-desc">윤리경영 이행 및 불공정 행위 금지 서약</div>
             <div class="docs-card-actions">
-              <button class="docs-btn-open" onclick="openDoc('■공통_윤리서약서.pdf')">🔗 열기</button>
-              <button class="docs-btn-print" onclick="printDoc('■공통_윤리서약서.pdf')">🖨️ 인쇄</button>
+              <button class="docs-btn-open" onclick="openDoc('05_윤리서약서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('05_윤리서약서.pdf')">🖨️ 인쇄</button>
             </div>
           </div>
           <div class="docs-card">
@@ -534,13 +534,13 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
             <div class="docs-card-title">근무 충실 서약서</div>
             <div class="docs-card-desc">유통·리테일 근무 성실 이행 서약서 (v11)</div>
             <div class="docs-card-actions">
-              <button class="docs-btn-open" onclick="openDoc('■유통_리테일)근무 충실 서약서_v11(1).pdf')">🔗 열기</button>
-              <button class="docs-btn-print" onclick="printDoc('■유통_리테일)근무 충실 서약서_v11(1).pdf')">🖨️ 인쇄</button>
+              <button class="docs-btn-open" onclick="openDoc('06_근무충실서약서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('06_근무충실서약서.pdf')">🖨️ 인쇄</button>
             </div>
           </div>
         </div>
         <div class="docs-notice">
-          💡 버튼 클릭 시 6개 PDF가 자동으로 합쳐져 <strong>인쇄창 하나</strong>로 열립니다. 파일 크기에 따라 5~10초 소요될 수 있어요.<br>
+          💡 버튼 클릭 시 6개 PDF가 자동으로 합쳐져 <strong>새 탭</strong>에서 열립니다. 인쇄창이 자동으로 안 뜨면 새 탭에서 <strong>Ctrl+P</strong>(Mac: ⌘+P)를 눌러 인쇄하세요. 팝업 차단 알림이 뜨면 허용해 주세요.<br>
           파일은 GitHub Repository(<code>soobinhome/recruit-hub</code>)에 올라가 있어야 합니다.
         </div>
       </div>
@@ -1004,12 +1004,12 @@ window.toast = function(msg) {
 // ── Docs ──
 const BASE_URL = 'https://soobinhome.github.io/recruit-hub/';
 const ALL_DOCS = [
-  '■공통_기업비밀 및 개인정보 보호 서약서.pdf',
-  '■공통_연봉비밀서약서.pdf',
-  '■공통_연장야간근으로 합의서.pdf',
-  '■공통_온라인동의서_개인정보수집이용동의서.pdf',
-  '■공통_윤리서약서.pdf',
-  '■유통_리테일)근무 충실 서약서_v11(1).pdf',
+  '01_기업비밀및개인정보보호서약서.pdf',
+  '02_연봉비밀서약서.pdf',
+  '03_연장야간근로합의서.pdf',
+  '04_개인정보수집이용동의서.pdf',
+  '05_윤리서약서.pdf',
+  '06_근무충실서약서.pdf',
 ];
 
 window.openDoc = function(filename) {
@@ -1056,23 +1056,23 @@ async function mergePDFsAndPrint(filenames) {
     const blob = new Blob([mergedBytes], { type: 'application/pdf' });
     const blobUrl = URL.createObjectURL(blob);
 
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'display:none;width:0;height:0;border:none;position:fixed;';
-    document.body.appendChild(iframe);
-    iframe.src = blobUrl;
-    iframe.onload = () => {
-      setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        setTimeout(() => {
-          URL.revokeObjectURL(blobUrl);
-          document.body.removeChild(iframe);
-        }, 5000);
-      }, 800);
-    };
+    // 새 탭에서 직접 열기 (iframe보다 브라우저 호환성 높음, 자동 인쇄창은 PDF 뷰어가 처리)
+    const newTab = window.open(blobUrl, '_blank');
+
+    if (!newTab || newTab.closed || typeof newTab.closed === 'undefined') {
+      // 팝업이 차단된 경우
+      if (btn) { btn.disabled = false; btn.textContent = '🖨️ 전체 서류 한 번에 인쇄 (6개)'; }
+      toast('⚠️ 팝업이 차단되었어요. 주소창의 팝업 차단 아이콘을 눌러 허용해 주세요');
+      return;
+    }
+
+    // 새 탭이 로드되면 인쇄 다이얼로그 자동 호출 시도
+    setTimeout(() => {
+      try { newTab.print(); } catch(e) { /* 일부 브라우저는 PDF 뷰어 내장 단축키(Ctrl+P)로 직접 인쇄 */ }
+    }, 1200);
 
     if (btn) { btn.disabled = false; btn.textContent = '🖨️ 전체 서류 한 번에 인쇄 (6개)'; }
-    toast('✅ 인쇄 창이 열립니다!');
+    toast('✅ 새 탭에서 PDF가 열렸어요. 안 뜨면 Ctrl+P를 눌러주세요!');
 
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '🖨️ 전체 서류 한 번에 인쇄 (6개)'; }
