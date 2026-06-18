@@ -81,6 +81,19 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 .color-swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform .12s; }
 .color-swatch:hover { transform: scale(1.1); }
 .color-swatch.selected { border-color: var(--text-primary); box-shadow: 0 0 0 2px white inset; }
+.btn-inline-newgroup { padding: 0 12px; border: 1px dashed var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text-secondary); font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: var(--font); transition: all .15s; }
+.btn-inline-newgroup:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+/* BULK ACTION BAR */
+.bulk-bar { background: #1F2937; border-radius: var(--radius-sm); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+.bulk-bar-left { color: white; font-size: 13px; }
+.bulk-count { font-weight: 700; color: #93C5FD; }
+.bulk-bar-right { display: flex; gap: 8px; align-items: center; }
+.btn-bulk-move { padding: 6px 14px; background: var(--accent); color: white; border: none; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+.btn-bulk-move:hover { background: var(--accent-hover); }
+.btn-bulk-cancel { padding: 6px 12px; background: transparent; color: #D1D5DB; border: 1px solid #4B5563; border-radius: 5px; font-size: 12px; cursor: pointer; font-family: var(--font); }
+.btn-bulk-cancel:hover { background: #374151; color: white; }
+.row-check { cursor: pointer; }
 .stage-pane { width: var(--panel-w); flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
 .stage-pane-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 2; }
 .stage-pane-title { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: .6px; text-transform: uppercase; }
@@ -300,7 +313,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
       <button class="tab-btn active" onclick="switchTab('recruit')" id="tab-recruit"><span>📋</span> 채용 관리</button>
       <button class="tab-btn" onclick="switchTab('offer')" id="tab-offer"><span>✉️</span> 오퍼레터 생성</button>
       <button class="tab-btn" onclick="switchTab('memo')" id="tab-memo"><span>📝</span> 메모장</button>
-      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 계약 서류</button>
+      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 입사 서류</button>
     </div>
     <div class="nav-right">
       <div class="header-stats" id="headerStats">
@@ -349,10 +362,26 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
           <button class="btn btn-primary" onclick="openAddModal()">＋ 지원자 추가</button>
         </div>
       </div>
+
+      <!-- BULK ACTION BAR -->
+      <div class="bulk-bar" id="bulkBar" style="display:none;">
+        <div class="bulk-bar-left">
+          <span class="bulk-count" id="bulkCount">0</span>명 선택됨
+        </div>
+        <div class="bulk-bar-right">
+          <select class="filter-select" id="bulkGroupSelect" style="background:white;">
+            <option value="">그룹으로 이동...</option>
+          </select>
+          <button class="btn-bulk-move" onclick="applyBulkMove()">이동</button>
+          <button class="btn-bulk-cancel" onclick="clearSelection()">선택 해제</button>
+        </div>
+      </div>
+
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th style="width:32px;"><input type="checkbox" id="selectAllCheck" onchange="toggleSelectAll(this.checked)"></th>
               <th>지원 포지션</th><th>이름</th><th>학교 / 학과</th><th>예상 직급</th><th>현재 단계</th><th>채용 현황</th><th></th>
             </tr>
           </thead>
@@ -504,7 +533,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
     <div class="docs-page">
       <div class="docs-inner">
         <div class="docs-hero">
-          <div class="docs-hero-title">📄 계약 서류 인쇄</div>
+          <div class="docs-hero-title">📄 입사 서류 인쇄</div>
           <div class="docs-hero-desc">버튼 하나로 전체 서류를 한 번에 열거나, 개별 서류를 따로 열어 인쇄할 수 있어요.</div>
         </div>
         <div class="docs-all-btn-wrap">
@@ -596,9 +625,12 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
         <div class="form-group"><label class="form-label">이름 <span class="req">*</span></label><input class="form-input" id="f_name" placeholder="홍길동"></div>
         <div class="form-group form-full">
           <label class="form-label">포지션 그룹</label>
-          <select class="form-select" id="f_group">
-            <option value="">그룹 없음</option>
-          </select>
+          <div style="display:flex;gap:6px;">
+            <select class="form-select" id="f_group" style="flex:1;">
+              <option value="">그룹 없음</option>
+            </select>
+            <button type="button" class="btn-inline-newgroup" onclick="openGroupModal(true)">＋ 새 그룹</button>
+          </div>
         </div>
         <div class="form-group"><label class="form-label">학교</label><input class="form-input" id="f_school" placeholder="예: 서울대학교"></div>
         <div class="form-group"><label class="form-label">학과</label><input class="form-input" id="f_major" placeholder="예: 컴퓨터공학과"></div>
@@ -687,6 +719,7 @@ let editingId     = null;
 let selectedMemoId = null;
 let memoUnsaved   = false;
 let activeGroupId = null; // null = 전체 보기
+let selectedIds   = new Set(); // 일괄 작업용 체크된 지원자 id
 let _ignoreNext   = false; // suppress re-render flicker on own writes
 
 const GROUP_COLORS = ['#2563EB','#7C3AED','#0F766E','#DC2626','#D97706','#0891B2','#65A30D','#DB2777'];
@@ -782,8 +815,10 @@ function renderAll() {
     tbody.innerHTML = filtered.map(c=>{
       const g = c.groupId ? groups[c.groupId] : null;
       const groupDot = g ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${g.color};margin-right:6px;vertical-align:middle;" title="${g.name}"></span>` : '';
+      const checked = selectedIds.has(c.id) ? 'checked' : '';
       return `
       <tr class="${selectedId===c.id?'active-row':''}" onclick="window._selectCandidate('${c.id}')">
+        <td onclick="event.stopPropagation()"><input type="checkbox" class="row-check" ${checked} onchange="toggleRowCheck('${c.id}',this.checked)"></td>
         <td>${groupDot}${c.position||'—'}</td>
         <td><div class="td-name">${c.name}</div><div class="td-sub">${c.createdAt||''}</div></td>
         <td><div>${c.school||'—'}</div><div class="td-sub">${c.major||''}</div></td>
@@ -800,6 +835,7 @@ function renderAll() {
   }
   if (selectedId && candidates[selectedId]) renderStagePanel(candidates[selectedId]);
   else if (selectedId) clearStagePanel();
+  updateBulkBar();
 }
 
 // ── Stage Panel ──
@@ -990,10 +1026,75 @@ function renderGroupOptions() {
   sel.innerHTML = '<option value="">그룹 없음</option>' +
     groupArr.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
   sel.value = current;
+
+  // 일괄 이동용 셀렉트도 같이 갱신
+  const bulkSel = document.getElementById('bulkGroupSelect');
+  if (bulkSel) {
+    bulkSel.innerHTML = '<option value="">그룹으로 이동...</option>' +
+      '<option value="__none__">그룹 없음으로 이동</option>' +
+      groupArr.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+  }
 }
+
+// ── 일괄 선택 ──
+window.toggleRowCheck = function(id, checked) {
+  if (checked) selectedIds.add(id); else selectedIds.delete(id);
+  updateBulkBar();
+};
+
+window.toggleSelectAll = function(checked) {
+  const filtered = getFiltered();
+  if (checked) filtered.forEach(c => selectedIds.add(c.id));
+  else filtered.forEach(c => selectedIds.delete(c.id));
+  renderAll();
+};
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulkBar');
+  const cnt = document.getElementById('bulkCount');
+  if (!bar) return;
+  if (selectedIds.size > 0) {
+    bar.style.display = 'flex';
+    cnt.textContent = selectedIds.size;
+  } else {
+    bar.style.display = 'none';
+  }
+  // 전체선택 체크박스 상태 동기화
+  const filtered = getFiltered();
+  const allCheck = document.getElementById('selectAllCheck');
+  if (allCheck) {
+    allCheck.checked = filtered.length>0 && filtered.every(c=>selectedIds.has(c.id));
+  }
+}
+
+window.clearSelection = function() {
+  selectedIds.clear();
+  renderAll();
+};
+
+window.applyBulkMove = async function() {
+  const sel = document.getElementById('bulkGroupSelect');
+  const val = sel.value;
+  if (!val) { toast('⚠️ 이동할 그룹을 선택해 주세요'); return; }
+  const groupId = val === '__none__' ? null : val;
+  const groupName = val === '__none__' ? '그룹 없음' : (groups[groupId]?.name || '');
+  const ids = Array.from(selectedIds);
+
+  setSyncState('saving');
+  const updates = {};
+  ids.forEach(id => { updates['candidates/'+id+'/groupId'] = groupId; });
+  await Promise.all(ids.map(id => set(ref(db, 'candidates/'+id+'/groupId'), groupId)));
+  setSyncState('live');
+
+  toast(`✅ ${ids.length}명을 "${groupName}"(으)로 이동했습니다`);
+  selectedIds.clear();
+  sel.value = '';
+  renderAll();
+};
 
 window.selectGroup = function(groupId) {
   activeGroupId = groupId;
+  selectedIds.clear();
   const title = document.getElementById('listTitle');
   if (groupId && groups[groupId]) title.textContent = groups[groupId].name + ' 지원자';
   else title.textContent = '전체 지원자';
@@ -1001,7 +1102,10 @@ window.selectGroup = function(groupId) {
   renderAll();
 };
 
-window.openGroupModal = function() {
+let groupModalFromCandidate = false;
+
+window.openGroupModal = function(fromCandidateModal) {
+  groupModalFromCandidate = !!fromCandidateModal;
   document.getElementById('g_name').value = '';
   selectedColor = GROUP_COLORS[Object.keys(groups).length % GROUP_COLORS.length];
   renderColorPicker();
@@ -1033,6 +1137,13 @@ window.saveGroup = async function() {
   await set(newRef, { name, color: selectedColor, createdAt: Date.now() });
   setSyncState('live');
   toast(`✅ "${name}" 그룹이 추가되었습니다`);
+  // 지원자 모달에서 호출된 경우, 방금 만든 그룹을 자동 선택
+  if (groupModalFromCandidate) {
+    setTimeout(() => {
+      const sel = document.getElementById('f_group');
+      if (sel) sel.value = newRef.key;
+    }, 100);
+  }
   closeGroupModal();
 };
 
