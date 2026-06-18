@@ -234,6 +234,30 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
 .spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
 .loading-text { font-size: 12px; color: var(--text-muted); }
+/* DOCS PAGE */
+.docs-page { flex: 1; overflow-y: auto; padding: 28px 24px 60px; }
+.docs-inner { max-width: 860px; margin: 0 auto; }
+.docs-hero { margin-bottom: 24px; }
+.docs-hero-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; margin-bottom: 6px; }
+.docs-hero-desc { font-size: 13px; color: var(--text-secondary); }
+.docs-all-btn-wrap { background: var(--accent); border-radius: var(--radius); padding: 20px 24px; display: flex; align-items: center; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
+.docs-print-all-btn { background: white; color: var(--accent); border: none; border-radius: var(--radius-sm); padding: 11px 24px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font); transition: opacity .15s; white-space: nowrap; }
+.docs-print-all-btn:hover { opacity: 0.88; }
+.docs-all-hint { font-size: 12px; color: rgba(255,255,255,0.8); }
+.docs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.docs-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 6px; transition: box-shadow .15s, border-color .15s; }
+.docs-card:hover { box-shadow: var(--shadow-md); border-color: #C7D7F5; }
+.docs-card-num { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: .5px; }
+.docs-card-icon { font-size: 24px; margin: 4px 0; }
+.docs-card-title { font-size: 13px; font-weight: 700; color: var(--text-primary); line-height: 1.4; }
+.docs-card-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; flex: 1; }
+.docs-card-actions { display: flex; gap: 7px; margin-top: 10px; }
+.docs-btn-open { flex: 1; padding: 7px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; font-family: var(--font); transition: all .15s; }
+.docs-btn-open:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.docs-btn-print { flex: 1; padding: 7px 0; border: none; border-radius: var(--radius-sm); background: var(--accent); font-size: 12px; font-weight: 600; color: white; cursor: pointer; font-family: var(--font); transition: background .15s; }
+.docs-btn-print:hover { background: var(--accent-hover); }
+.docs-notice { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 12px; color: #92400E; line-height: 1.6; }
+.docs-notice code { background: #FEF3C7; padding: 1px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -252,6 +276,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
       <button class="tab-btn active" onclick="switchTab('recruit')" id="tab-recruit"><span>📋</span> 채용 관리</button>
       <button class="tab-btn" onclick="switchTab('offer')" id="tab-offer"><span>✉️</span> 오퍼레터 생성</button>
       <button class="tab-btn" onclick="switchTab('memo')" id="tab-memo"><span>📝</span> 메모장</button>
+      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 입사 서류</button>
     </div>
     <div class="nav-right">
       <div class="header-stats" id="headerStats">
@@ -440,6 +465,88 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
     </div>
   </div>
 
+  <!-- PAGE 4: DOCS -->
+  <div class="page" id="page-docs" style="flex-direction:column;overflow-y:auto;">
+    <div class="docs-page">
+      <div class="docs-inner">
+        <div class="docs-hero">
+          <div class="docs-hero-title">📄 입사 서류 인쇄</div>
+          <div class="docs-hero-desc">버튼 하나로 전체 서류를 한 번에 열거나, 개별 서류를 따로 열어 인쇄할 수 있어요.</div>
+        </div>
+        <div class="docs-all-btn-wrap">
+          <button class="docs-print-all-btn" id="printAllBtn" onclick="printAll()">🖨️ 전체 서류 한 번에 인쇄 (6개)</button>
+          <div class="docs-all-hint">6개 PDF가 자동으로 합쳐져 인쇄창 하나가 열립니다</div>
+        </div>
+        <div class="docs-grid">
+          <div class="docs-card">
+            <div class="docs-card-num">01</div>
+            <div class="docs-card-icon">🔒</div>
+            <div class="docs-card-title">기업비밀 및 개인정보 보호서약서</div>
+            <div class="docs-card-desc">재직 중·퇴직 후 기밀정보 보호 및 경업금지 서약</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('_공통_기업비밀_및_개인정보_보호_서약서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('_공통_기업비밀_및_개인정보_보호_서약서.pdf')">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">02</div>
+            <div class="docs-card-icon">💰</div>
+            <div class="docs-card-title">연봉 비밀서약서</div>
+            <div class="docs-card-desc">급여 관련 비밀유지 의무 확인서</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('_공통_연봉비밀서약서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('_공통_연봉비밀서약서.pdf')">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">03</div>
+            <div class="docs-card-icon">🕐</div>
+            <div class="docs-card-title">연장·야간근로 합의서</div>
+            <div class="docs-card-desc">연장근로 및 야간·휴일근로 동의서</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('_공통_연장야간근로_합의서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('_공통_연장야간근로_합의서.pdf')">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">04</div>
+            <div class="docs-card-icon">📋</div>
+            <div class="docs-card-title">개인정보 수집·이용 동의서</div>
+            <div class="docs-card-desc">임직원 개인정보 수집·이용 및 제3자 제공 동의</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('_공통_온라인동의서_개인정보수집이용동의서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('_공통_온라인동의서_개인정보수집이용동의서.pdf')">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">05</div>
+            <div class="docs-card-icon">⚖️</div>
+            <div class="docs-card-title">윤리서약서</div>
+            <div class="docs-card-desc">윤리경영 이행 및 불공정 행위 금지 서약</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('_공통_윤리서약서.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('_공통_윤리서약서.pdf')">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">06</div>
+            <div class="docs-card-icon">✍️</div>
+            <div class="docs-card-title">근무 충실 서약서</div>
+            <div class="docs-card-desc">유통·리테일 근무 성실 이행 서약서 (v11)</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('■유통_리테일)근무 충실 서약서_v11(1).pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printDoc('■유통_리테일)근무 충실 서약서_v11(1).pdf')">🖨️ 인쇄</button>
+            </div>
+          </div>
+        </div>
+        <div class="docs-notice">
+          💡 버튼 클릭 시 6개 PDF가 자동으로 합쳐져 <strong>인쇄창 하나</strong>로 열립니다. 파일 크기에 따라 5~10초 소요될 수 있어요.<br>
+          파일은 GitHub Repository(<code>soobinhome/recruit-hub</code>)에 올라가 있어야 합니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- CANDIDATE MODAL -->
@@ -528,7 +635,7 @@ function setSyncState(state) {
 
 // ── Tab ──
 window.switchTab = function(tab) {
-  ['recruit','offer','memo'].forEach(t => {
+  ['recruit','offer','memo','docs'].forEach(t => {
     document.getElementById('tab-'+t).classList.toggle('active', t===tab);
     document.getElementById('page-'+t).classList.toggle('active', t===tab);
   });
@@ -893,6 +1000,87 @@ window.toast = function(msg) {
   const t=document.createElement('div');t.className='toast-el';t.textContent=msg;
   document.body.appendChild(t);setTimeout(()=>t.remove(),2800);
 };
+
+// ── Docs ──
+const BASE_URL = 'https://soobinhome.github.io/recruit-hub/';
+const ALL_DOCS = [
+  '_공통_기업비밀_및_개인정보_보호_서약서.pdf',
+  '_공통_연봉비밀서약서.pdf',
+  '_공통_연장야간근로_합의서.pdf',
+  '_공통_온라인동의서_개인정보수집이용동의서.pdf',
+  '_공통_윤리서약서.pdf',
+  '■유통_리테일)근무 충실 서약서_v11(1).pdf',
+];
+
+window.openDoc = function(filename) {
+  window.open(BASE_URL + encodeURIComponent(filename), '_blank');
+};
+
+window.printDoc = function(filename) {
+  mergePDFsAndPrint([filename]);
+};
+
+window.printAll = function() {
+  mergePDFsAndPrint(ALL_DOCS);
+};
+
+async function mergePDFsAndPrint(filenames) {
+  const btn = document.getElementById('printAllBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 합치는 중...'; }
+  toast('⏳ PDF 합치는 중... 잠시만 기다려 주세요');
+
+  try {
+    if (!window.PDFLib) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+        s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    const { PDFDocument } = window.PDFLib;
+    const merged = await PDFDocument.create();
+
+    for (const filename of filenames) {
+      const url = BASE_URL + encodeURIComponent(filename);
+      const res = await fetch(url);
+      if (!res.ok) { toast('❌ 파일 오류: ' + filename); continue; }
+      const bytes = await res.arrayBuffer();
+      const pdf = await PDFDocument.load(bytes);
+      const pages = await merged.copyPages(pdf, pdf.getPageIndices());
+      pages.forEach(p => merged.addPage(p));
+    }
+
+    const mergedBytes = await merged.save();
+    const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'display:none;width:0;height:0;border:none;position:fixed;';
+    document.body.appendChild(iframe);
+    iframe.src = blobUrl;
+    iframe.onload = () => {
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl);
+          document.body.removeChild(iframe);
+        }, 5000);
+      }, 800);
+    };
+
+    if (btn) { btn.disabled = false; btn.textContent = '🖨️ 전체 서류 한 번에 인쇄 (6개)'; }
+    toast('✅ 인쇄 창이 열립니다!');
+
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '🖨️ 전체 서류 한 번에 인쇄 (6개)'; }
+    toast('❌ 오류: ' + e.message);
+    console.error(e);
+  }
+}
+
 </script>
 </body>
 </html>
