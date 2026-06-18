@@ -57,6 +57,30 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
 
 /* RECRUIT PAGE */
 .list-pane { flex: 1; overflow-y: auto; padding: 20px; min-width: 0; }
+
+/* GROUP SIDEBAR */
+.group-sidebar { width: 196px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+.group-sidebar-header { padding: 14px 14px 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-light); }
+.group-sidebar-title { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: .5px; text-transform: uppercase; }
+.btn-new-group { width: 22px; height: 22px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); font-size: 14px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.btn-new-group:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.group-list { padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+.group-item { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: background .12s; }
+.group-item:hover { background: var(--bg); }
+.group-item.active { background: var(--accent-soft); }
+.group-item.active .group-item-name { color: var(--accent); font-weight: 700; }
+.group-item-left { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.group-item-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.group-item-name { font-size: 12.5px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.group-item-count { font-size: 10px; color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+.group-item-del { width: 18px; height: 18px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 13px; flex-shrink: 0; display: none; align-items: center; justify-content: center; border-radius: 3px; }
+.group-item:hover .group-item-del { display: flex; }
+.group-item-del:hover { background: #FEE2E2; color: #EF4444; }
+.group-empty-hint { padding: 16px 14px; font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+.color-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.color-swatch { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform .12s; }
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.selected { border-color: var(--text-primary); box-shadow: 0 0 0 2px white inset; }
 .stage-pane { width: var(--panel-w); flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
 .stage-pane-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 2; }
 .stage-pane-title { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: .6px; text-transform: uppercase; }
@@ -276,7 +300,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
       <button class="tab-btn active" onclick="switchTab('recruit')" id="tab-recruit"><span>📋</span> 채용 관리</button>
       <button class="tab-btn" onclick="switchTab('offer')" id="tab-offer"><span>✉️</span> 오퍼레터 생성</button>
       <button class="tab-btn" onclick="switchTab('memo')" id="tab-memo"><span>📝</span> 메모장</button>
-      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 입사 서류</button>
+      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 계약 서류</button>
     </div>
     <div class="nav-right">
       <div class="header-stats" id="headerStats">
@@ -293,10 +317,19 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
 
   <!-- PAGE 1: RECRUIT -->
   <div class="page active" id="page-recruit" style="flex-direction:row;">
+    <!-- GROUP SIDEBAR -->
+    <div class="group-sidebar">
+      <div class="group-sidebar-header">
+        <div class="group-sidebar-title">포지션 그룹</div>
+        <button class="btn-new-group" onclick="openGroupModal()" title="그룹 추가">＋</button>
+      </div>
+      <div class="group-list" id="groupList"></div>
+    </div>
+
     <div class="list-pane">
       <div class="topbar">
         <div class="topbar-left">
-          <h1 class="section-title">지원자 현황</h1>
+          <h1 class="section-title" id="listTitle">전체 지원자</h1>
           <span class="count-badge" id="tableCount">0</span>
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
@@ -343,6 +376,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
       <div class="stage-blocks" id="stageBlocks" style="display:none;"></div>
     </div>
   </div>
+
 
   <!-- PAGE 2: OFFER LETTER -->
   <div class="page" id="page-offer">
@@ -470,7 +504,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
     <div class="docs-page">
       <div class="docs-inner">
         <div class="docs-hero">
-          <div class="docs-hero-title">📄 입사 서류 인쇄</div>
+          <div class="docs-hero-title">📄 계약 서류 인쇄</div>
           <div class="docs-hero-desc">버튼 하나로 전체 서류를 한 번에 열거나, 개별 서류를 따로 열어 인쇄할 수 있어요.</div>
         </div>
         <div class="docs-all-btn-wrap">
@@ -560,6 +594,12 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
       <div class="form-grid">
         <div class="form-group"><label class="form-label">지원 포지션 <span class="req">*</span></label><input class="form-input" id="f_position" placeholder="예: 백엔드 개발자"></div>
         <div class="form-group"><label class="form-label">이름 <span class="req">*</span></label><input class="form-input" id="f_name" placeholder="홍길동"></div>
+        <div class="form-group form-full">
+          <label class="form-label">포지션 그룹</label>
+          <select class="form-select" id="f_group">
+            <option value="">그룹 없음</option>
+          </select>
+        </div>
         <div class="form-group"><label class="form-label">학교</label><input class="form-input" id="f_school" placeholder="예: 서울대학교"></div>
         <div class="form-group"><label class="form-label">학과</label><input class="form-input" id="f_major" placeholder="예: 컴퓨터공학과"></div>
         <div class="form-group"><label class="form-label">예상 직급</label><input class="form-input" id="f_grade" placeholder="예: 대리, 사원"></div>
@@ -601,6 +641,30 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
   </div>
 </div>
 
+<!-- GROUP MODAL -->
+<div class="modal-overlay" id="groupModal" style="display:none;" onclick="if(event.target===this)closeGroupModal()">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <h2 class="modal-title">포지션 그룹 추가</h2>
+      <button class="modal-close" onclick="closeGroupModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">그룹 이름 <span class="req">*</span></label>
+        <input class="form-input" id="g_name" placeholder="예: MD, IMD, 개발팀...">
+      </div>
+      <div class="form-group" style="margin-top:12px;">
+        <label class="form-label">색상</label>
+        <div class="color-picker" id="colorPicker"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeGroupModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveGroup()">추가</button>
+    </div>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -617,11 +681,16 @@ const db = getDatabase(app);
 // ── State ──
 let candidates    = {};   // { id: {...} }
 let memos         = {};
+let groups        = {};   // { id: { name, color } }
 let selectedId    = null;
 let editingId     = null;
 let selectedMemoId = null;
 let memoUnsaved   = false;
+let activeGroupId = null; // null = 전체 보기
 let _ignoreNext   = false; // suppress re-render flicker on own writes
+
+const GROUP_COLORS = ['#2563EB','#7C3AED','#0F766E','#DC2626','#D97706','#0891B2','#65A30D','#DB2777'];
+let selectedColor = GROUP_COLORS[0];
 
 // ── Sync UI ──
 function setSyncState(state) {
@@ -661,6 +730,13 @@ onValue(ref(db, 'memos'), snapshot => {
   renderMemoList();
 });
 
+onValue(ref(db, 'groups'), snapshot => {
+  groups = snapshot.val() || {};
+  renderGroupSidebar();
+  renderGroupOptions();
+  renderAll();
+});
+
 // ══════════════════════════════════════════════
 // RECRUIT — RENDER
 // ══════════════════════════════════════════════
@@ -670,7 +746,8 @@ function getFiltered() {
   const sts = document.getElementById('statusFilter').value;
   return Object.values(candidates).filter(c => {
     const ms = !s || [c.name,c.school,c.position,c.major].some(f=>f&&f.toLowerCase().includes(s));
-    return ms && (!stg||c.stage===stg) && (!sts||c.status===sts);
+    const mg = !activeGroupId || c.groupId === activeGroupId;
+    return ms && mg && (!stg||c.stage===stg) && (!sts||c.status===sts);
   }).sort((a,b) => (a.createdAt||'') > (b.createdAt||'') ? -1 : 1);
 }
 
@@ -702,9 +779,12 @@ function renderAll() {
     tbody.innerHTML=''; empty.style.display='block';
   } else {
     empty.style.display='none';
-    tbody.innerHTML = filtered.map(c=>`
+    tbody.innerHTML = filtered.map(c=>{
+      const g = c.groupId ? groups[c.groupId] : null;
+      const groupDot = g ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${g.color};margin-right:6px;vertical-align:middle;" title="${g.name}"></span>` : '';
+      return `
       <tr class="${selectedId===c.id?'active-row':''}" onclick="window._selectCandidate('${c.id}')">
-        <td>${c.position||'—'}</td>
+        <td>${groupDot}${c.position||'—'}</td>
         <td><div class="td-name">${c.name}</div><div class="td-sub">${c.createdAt||''}</div></td>
         <td><div>${c.school||'—'}</div><div class="td-sub">${c.major||''}</div></td>
         <td>${c.grade||'—'}</td>
@@ -716,7 +796,7 @@ function renderAll() {
             <button class="btn-icon danger" onclick="window._deleteCandidate('${c.id}')">🗑</button>
           </div>
         </td>
-      </tr>`).join('');
+      </tr>`;}).join('');
   }
   if (selectedId && candidates[selectedId]) renderStagePanel(candidates[selectedId]);
   else if (selectedId) clearStagePanel();
@@ -784,6 +864,7 @@ window.openAddModal = function() {
   editingId=null;
   document.getElementById('modalTitle').textContent='지원자 추가';
   clearForm();
+  if (activeGroupId) document.getElementById('f_group').value = activeGroupId;
   document.getElementById('addModal').style.display='flex';
 };
 window._openEditModal = function(id) {
@@ -792,6 +873,7 @@ window._openEditModal = function(id) {
   document.getElementById('modalTitle').textContent='지원자 수정';
   document.getElementById('f_position').value=c.position||'';
   document.getElementById('f_name').value=c.name||'';
+  document.getElementById('f_group').value=c.groupId||'';
   document.getElementById('f_school').value=c.school||'';
   document.getElementById('f_major').value=c.major||'';
   document.getElementById('f_grade').value=c.grade||'';
@@ -807,6 +889,7 @@ window._openEditModal = function(id) {
 };
 function clearForm() {
   ['f_position','f_name','f_school','f_major','f_grade','f_s1_note','f_s2_note','f_s3_note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_group').value='';
   document.getElementById('f_stage').value='서류 전형';
   document.getElementById('f_status').value='검토중';
   document.getElementById('f_s1_status').value='검토중';
@@ -822,6 +905,7 @@ window.saveCandidate = async function() {
   if(!position){toast('⚠️ 포지션을 입력해 주세요');return;}
   const today=new Date().toLocaleDateString('ko-KR',{year:'2-digit',month:'2-digit',day:'2-digit'});
   const data={position,name,
+    groupId:document.getElementById('f_group').value||null,
     school:document.getElementById('f_school').value.trim(),
     major:document.getElementById('f_major').value.trim(),
     grade:document.getElementById('f_grade').value.trim(),
@@ -861,6 +945,111 @@ window._deleteCandidate = async function(id) {
 };
 
 // ══════════════════════════════════════════════
+// GROUPS
+// ══════════════════════════════════════════════
+function renderGroupSidebar() {
+  const el = document.getElementById('groupList');
+  const groupArr = Object.entries(groups).map(([id,g])=>({id,...g}));
+  const allCount = Object.keys(candidates).length;
+
+  let html = `
+    <div class="group-item ${!activeGroupId?'active':''}" onclick="selectGroup(null)">
+      <div class="group-item-left">
+        <div class="group-item-dot" style="background:#9CA3AF;"></div>
+        <div class="group-item-name">전체</div>
+      </div>
+      <div class="group-item-count">${allCount}</div>
+    </div>`;
+
+  if (!groupArr.length) {
+    html += `<div class="group-empty-hint">＋ 버튼으로 포지션 그룹을<br>직접 만들어보세요<br>(예: MD, IMD, 개발팀)</div>`;
+  } else {
+    groupArr.sort((a,b)=>(a.createdAt||'')>(b.createdAt||'')?1:-1);
+    html += groupArr.map(g => {
+      const count = Object.values(candidates).filter(c=>c.groupId===g.id).length;
+      return `
+        <div class="group-item ${activeGroupId===g.id?'active':''}" onclick="selectGroup('${g.id}')">
+          <div class="group-item-left">
+            <div class="group-item-dot" style="background:${g.color||'#2563EB'};"></div>
+            <div class="group-item-name">${g.name}</div>
+          </div>
+          <div class="group-item-count">${count}</div>
+          <button class="group-item-del" onclick="event.stopPropagation();deleteGroup('${g.id}')" title="그룹 삭제">✕</button>
+        </div>`;
+    }).join('');
+  }
+  el.innerHTML = html;
+}
+
+function renderGroupOptions() {
+  const sel = document.getElementById('f_group');
+  if (!sel) return;
+  const current = sel.value;
+  const groupArr = Object.entries(groups).map(([id,g])=>({id,...g}))
+    .sort((a,b)=>(a.createdAt||'')>(b.createdAt||'')?1:-1);
+  sel.innerHTML = '<option value="">그룹 없음</option>' +
+    groupArr.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+  sel.value = current;
+}
+
+window.selectGroup = function(groupId) {
+  activeGroupId = groupId;
+  const title = document.getElementById('listTitle');
+  if (groupId && groups[groupId]) title.textContent = groups[groupId].name + ' 지원자';
+  else title.textContent = '전체 지원자';
+  renderGroupSidebar();
+  renderAll();
+};
+
+window.openGroupModal = function() {
+  document.getElementById('g_name').value = '';
+  selectedColor = GROUP_COLORS[Object.keys(groups).length % GROUP_COLORS.length];
+  renderColorPicker();
+  document.getElementById('groupModal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('g_name').focus(), 50);
+};
+
+window.closeGroupModal = function() {
+  document.getElementById('groupModal').style.display = 'none';
+};
+
+function renderColorPicker() {
+  const el = document.getElementById('colorPicker');
+  el.innerHTML = GROUP_COLORS.map(c => `
+    <div class="color-swatch ${c===selectedColor?'selected':''}" style="background:${c};" onclick="pickColor('${c}')"></div>
+  `).join('');
+}
+
+window.pickColor = function(color) {
+  selectedColor = color;
+  renderColorPicker();
+};
+
+window.saveGroup = async function() {
+  const name = document.getElementById('g_name').value.trim();
+  if (!name) { toast('⚠️ 그룹 이름을 입력해 주세요'); return; }
+  const newRef = push(ref(db, 'groups'));
+  setSyncState('saving');
+  await set(newRef, { name, color: selectedColor, createdAt: Date.now() });
+  setSyncState('live');
+  toast(`✅ "${name}" 그룹이 추가되었습니다`);
+  closeGroupModal();
+};
+
+window.deleteGroup = async function(id) {
+  const g = groups[id];
+  if (!g) return;
+  const count = Object.values(candidates).filter(c=>c.groupId===id).length;
+  const msg = count > 0
+    ? `"${g.name}" 그룹을 삭제하시겠습니까?\n이 그룹에 속한 지원자 ${count}명은 "전체"로 이동됩니다.`
+    : `"${g.name}" 그룹을 삭제하시겠습니까?`;
+  if (!confirm(msg)) return;
+  setSyncState('saving');
+  await remove(ref(db, 'groups/'+id));
+  if (activeGroupId === id) { activeGroupId = null; document.getElementById('listTitle').textContent = '전체 지원자'; }
+  setSyncState('live');
+  toast('🗑 그룹이 삭제되었습니다');
+};
 // OFFER LETTER
 // ══════════════════════════════════════════════
 window.toggleContract = function() {
