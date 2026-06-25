@@ -151,6 +151,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
 .sf { background: var(--fail-bg); color: var(--fail-text); }
 .sq { background: var(--pend-bg); color: var(--pend-text); }
 .sw { background: var(--wait-bg); color: var(--wait-text); }
+.sd { background: #EFF6FF; color: #1D4ED8; }
 .action-row { display: flex; gap: 4px; }
 .btn-icon { width: 27px; height: 27px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all .15s; }
 .btn-icon:hover { background: var(--bg); border-color: var(--accent); }
@@ -313,7 +314,8 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
       <button class="tab-btn active" onclick="switchTab('recruit')" id="tab-recruit"><span>📋</span> 채용 관리</button>
       <button class="tab-btn" onclick="switchTab('offer')" id="tab-offer"><span>✉️</span> 오퍼레터 생성</button>
       <button class="tab-btn" onclick="switchTab('memo')" id="tab-memo"><span>📝</span> 메모장</button>
-      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 입사 서류</button>
+      <button class="tab-btn" onclick="switchTab('docs')" id="tab-docs"><span>📄</span> 계약 서류</button>
+      <button class="tab-btn" onclick="switchTab('omr')" id="tab-omr"><span>📝</span> 인적성 OMR</button>
     </div>
     <div class="nav-right">
       <div class="header-stats" id="headerStats">
@@ -355,6 +357,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
           </select>
           <select class="filter-select" id="statusFilter">
             <option value="">모든 현황</option>
+            <option value="대기중">대기중</option>
             <option value="검토중">검토중</option>
             <option value="합격">합격</option>
             <option value="불합격">불합격</option>
@@ -533,7 +536,7 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
     <div class="docs-page">
       <div class="docs-inner">
         <div class="docs-hero">
-          <div class="docs-hero-title">📄 입사 서류 인쇄</div>
+          <div class="docs-hero-title">📄 계약 서류 인쇄</div>
           <div class="docs-hero-desc">버튼 하나로 전체 서류를 한 번에 열거나, 개별 서류를 따로 열어 인쇄할 수 있어요.</div>
         </div>
         <div class="docs-all-btn-wrap">
@@ -610,6 +613,83 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
     </div>
   </div>
 
+  <!-- PAGE 5: OMR -->
+  <div class="page" id="page-omr" style="flex-direction:column;overflow-y:auto;">
+    <div class="docs-page">
+      <div class="docs-inner">
+        <div class="docs-hero">
+          <div class="docs-hero-title">📝 인적성 OMR 인쇄</div>
+          <div class="docs-hero-desc">가로 방향 · 실제 크기로 인쇄됩니다. 전체 출력 또는 개별 출력 모두 가능해요.</div>
+        </div>
+
+        <!-- 전체 인쇄 버튼 -->
+        <div class="docs-all-btn-wrap">
+          <button class="docs-print-all-btn" id="omrPrintAllBtn" onclick="printAllOMR()">🖨️ OMR 전체 한 번에 인쇄 (5개)</button>
+          <div class="docs-all-hint">5개 OMR이 합쳐져 가로 방향 · 실제 크기로 인쇄창이 열립니다</div>
+        </div>
+
+        <!-- 개별 카드 -->
+        <div class="docs-grid">
+          <div class="docs-card">
+            <div class="docs-card-num">01</div>
+            <div class="docs-card-icon">🧠</div>
+            <div class="docs-card-title">인재정보기초검사</div>
+            <div class="docs-card-desc">인재정보기초조사 · 인재기초검사 A/B/C</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('1. 인재정보기초검사.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printOMR(['1. 인재정보기초검사.pdf'])">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">02</div>
+            <div class="docs-card-icon">📖</div>
+            <div class="docs-card-title">언어수리비평검사</div>
+            <div class="docs-card-desc">언어비평검사 · 수리비평검사</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('2. 언어수리비평검사.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printOMR(['2. 언어수리비평검사.pdf'])">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">03</div>
+            <div class="docs-card-icon">🎯</div>
+            <div class="docs-card-title">상황판단검사</div>
+            <div class="docs-card-desc">상황판단 · 가장 좋다/좋지 않다 선택형</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('3. 상황판단검사.pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printOMR(['3. 상황판단검사.pdf'])">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">04</div>
+            <div class="docs-card-icon">👤</div>
+            <div class="docs-card-title">인재유형검사 (1)</div>
+            <div class="docs-card-desc">인재유형검사 1번 ~ 240번</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('4. 인재유형검사(1).pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printOMR(['4. 인재유형검사(1).pdf'])">🖨️ 인쇄</button>
+            </div>
+          </div>
+          <div class="docs-card">
+            <div class="docs-card-num">05</div>
+            <div class="docs-card-icon">👤</div>
+            <div class="docs-card-title">인재유형검사 (2)</div>
+            <div class="docs-card-desc">인재유형검사 241번 ~ 462번</div>
+            <div class="docs-card-actions">
+              <button class="docs-btn-open" onclick="openDoc('5. 인재유형검사(2).pdf')">🔗 열기</button>
+              <button class="docs-btn-print" onclick="printOMR(['5. 인재유형검사(2).pdf'])">🖨️ 인쇄</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="docs-notice">
+          💡 <strong>가로 방향 · 실제 크기(100%)</strong>로 자동 설정됩니다. 인쇄창에서 별도 조정 없이 바로 인쇄하세요.<br>
+          파일은 GitHub Repository(<code>soobinhome/recruit-hub</code>)에 올라가 있어야 합니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- CANDIDATE MODAL -->
@@ -644,22 +724,22 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
         </div>
         <div class="form-group form-full"><label class="form-label">채용 현황</label>
           <select class="form-select" id="f_status">
-            <option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option>
+            <option value="대기중">대기중</option><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option>
           </select>
         </div>
         <div class="form-group form-full">
           <label class="form-label">단계별 메모 / 할 일</label>
           <div class="stage-section">
             <div class="stage-row">
-              <div class="stage-label-cell"><div class="stage-name">📄 서류 전형</div><select class="stage-select" id="f_s1_status"><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
+              <div class="stage-label-cell"><div class="stage-name">📄 서류 전형</div><select class="stage-select" id="f_s1_status"><option value="대기중">대기중</option><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
               <div class="stage-note-cell"><textarea id="f_s1_note" placeholder="서류 전형 할 일, 메모..."></textarea></div>
             </div>
             <div class="stage-row">
-              <div class="stage-label-cell"><div class="stage-name">🧠 인적성검사</div><select class="stage-select" id="f_s2_status"><option value="대기">대기</option><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
+              <div class="stage-label-cell"><div class="stage-name">🧠 인적성검사</div><select class="stage-select" id="f_s2_status"><option value="대기중">대기중</option><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
               <div class="stage-note-cell"><textarea id="f_s2_note" placeholder="인적성검사 일정, 메모..."></textarea></div>
             </div>
             <div class="stage-row">
-              <div class="stage-label-cell"><div class="stage-name">🎯 면접전형</div><select class="stage-select" id="f_s3_status"><option value="대기">대기</option><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
+              <div class="stage-label-cell"><div class="stage-name">🎯 면접전형</div><select class="stage-select" id="f_s3_status"><option value="대기중">대기중</option><option value="검토중">검토중</option><option value="합격">합격</option><option value="불합격">불합격</option></select></div>
               <div class="stage-note-cell"><textarea id="f_s3_note" placeholder="면접 일정, 사전과제 내용..."></textarea></div>
             </div>
           </div>
@@ -737,7 +817,7 @@ function setSyncState(state) {
 
 // ── Tab ──
 window.switchTab = function(tab) {
-  ['recruit','offer','memo','docs'].forEach(t => {
+  ['recruit','offer','memo','docs','omr'].forEach(t => {
     document.getElementById('tab-'+t).classList.toggle('active', t===tab);
     document.getElementById('page-'+t).classList.toggle('active', t===tab);
   });
@@ -790,7 +870,7 @@ function stageBadge(stage) {
   return `<span class="stage-badge ${cls}">${lbl}</span>`;
 }
 function statusBadge(s) {
-  const m={'합격':'sp','불합격':'sf','검토중':'sq','대기':'sw'};
+  const m={'합격':'sp','불합격':'sf','검토중':'sq','대기중':'sd'};
   return `<span class="status-badge ${m[s]||'sw'}">${s}</span>`;
 }
 
@@ -868,7 +948,7 @@ function renderStagePanel(c) {
         </div>
         <div class="stage-block-footer">
           <select class="stage-status-select" id="sel_${s.key}">
-            ${['대기','검토중','합격','불합격'].map(v=>`<option value="${v}"${v===status?' selected':''}>${v}</option>`).join('')}
+            ${['대기중','검토중','합격','불합격'].map(v=>`<option value="${v}"${v===status?' selected':''}>${v}</option>`).join('')}
           </select>
           <button class="btn-save-stage" onclick="window._saveStage('${c.id}','${s.sk}','${s.nk}','${s.key}')">저장</button>
         </div>
@@ -917,9 +997,9 @@ window._openEditModal = function(id) {
   document.getElementById('f_status').value=c.status||'검토중';
   document.getElementById('f_s1_status').value=c.s1_status||'검토중';
   document.getElementById('f_s1_note').value=c.s1_note||'';
-  document.getElementById('f_s2_status').value=c.s2_status||'대기';
+  document.getElementById('f_s2_status').value=c.s2_status||'대기중';
   document.getElementById('f_s2_note').value=c.s2_note||'';
-  document.getElementById('f_s3_status').value=c.s3_status||'대기';
+  document.getElementById('f_s3_status').value=c.s3_status||'대기중';
   document.getElementById('f_s3_note').value=c.s3_note||'';
   document.getElementById('addModal').style.display='flex';
 };
@@ -929,8 +1009,8 @@ function clearForm() {
   document.getElementById('f_stage').value='서류 전형';
   document.getElementById('f_status').value='검토중';
   document.getElementById('f_s1_status').value='검토중';
-  document.getElementById('f_s2_status').value='대기';
-  document.getElementById('f_s3_status').value='대기';
+  document.getElementById('f_s2_status').value='대기중';
+  document.getElementById('f_s3_status').value='대기중';
 }
 window.closeModal = function() { document.getElementById('addModal').style.display='none'; };
 
@@ -1380,6 +1460,108 @@ async function mergePDFsAndPrint(filenames) {
     console.error(e);
   }
 }
+
+// ══════════════════════════════════════════════
+// OMR 인쇄 (가로 방향 + 실제 크기 강제)
+// ══════════════════════════════════════════════
+const OMR_DOCS = [
+  '1. 인재정보기초검사.pdf',
+  '2. 언어수리비평검사.pdf',
+  '3. 상황판단검사.pdf',
+  '4. 인재유형검사(1).pdf',
+  '5. 인재유형검사(2).pdf',
+];
+
+window.printAllOMR = function() {
+  printOMR(OMR_DOCS);
+};
+
+window.printOMR = async function(filenames) {
+  const btn = document.getElementById('omrPrintAllBtn');
+  const isAll = filenames.length > 1;
+  if (isAll && btn) { btn.disabled = true; btn.textContent = '⏳ 합치는 중...'; }
+  toast('⏳ OMR PDF 준비 중... 잠시만 기다려 주세요');
+
+  try {
+    // pdf-lib 로드
+    if (!window.PDFLib) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+        s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    const { PDFDocument } = window.PDFLib;
+    const merged = await PDFDocument.create();
+
+    for (const filename of filenames) {
+      const url = BASE_URL + encodeURIComponent(filename);
+      const res = await fetch(url);
+      if (!res.ok) { toast('❌ 파일 오류: ' + filename); continue; }
+      const bytes = await res.arrayBuffer();
+      const pdf = await PDFDocument.load(bytes);
+      const pages = await merged.copyPages(pdf, pdf.getPageIndices());
+      pages.forEach(p => merged.addPage(p));
+    }
+
+    const mergedBytes = await merged.save();
+    const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+
+    // 새 탭 열고 @page CSS로 가로 방향 + 실제 크기 강제 설정
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+      toast('⚠️ 팝업이 차단되었어요. 주소창의 팝업 차단 아이콘을 눌러 허용해 주세요');
+      if (isAll && btn) { btn.disabled = false; btn.textContent = '🖨️ OMR 전체 한 번에 인쇄 (5개)'; }
+      return;
+    }
+
+    printWin.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: white; }
+  embed {
+    width: 100%;
+    height: 100vh;
+    border: none;
+  }
+  @media print {
+    html, body { width: 100%; height: 100%; }
+    embed { width: 100%; height: 100vh; }
+  }
+</style>
+</head>
+<body>
+<embed src="${blobUrl}" type="application/pdf" width="100%" height="100%">
+<script>
+  window.onload = function() {
+    setTimeout(function() {
+      window.print();
+    }, 1200);
+  };
+<\/script>
+</body>
+</html>`);
+    printWin.document.close();
+
+    if (isAll && btn) { btn.disabled = false; btn.textContent = '🖨️ OMR 전체 한 번에 인쇄 (5개)'; }
+    toast('✅ OMR 인쇄창이 열립니다! 크기: 실제 크기, 방향: 가로');
+
+  } catch(e) {
+    if (isAll && btn) { btn.disabled = false; btn.textContent = '🖨️ OMR 전체 한 번에 인쇄 (5개)'; }
+    toast('❌ 오류: ' + e.message);
+    console.error(e);
+  }
+};
 
 </script>
 </body>
