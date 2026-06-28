@@ -297,7 +297,56 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
 .docs-notice { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 12px; color: #92400E; line-height: 1.6; }
 .docs-notice code { background: #FEF3C7; padding: 1px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; }
 
-/* CONTRACT MONITORING */
+/* EVAL ALERT BAR */
+.eval-alert-bar {
+  background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%);
+  padding: 12px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.eval-alert-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+.eval-alert-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.eval-alert-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: white;
+  cursor: pointer;
+  transition: background .15s;
+}
+.eval-alert-chip:hover { background: rgba(255,255,255,0.25); }
+.eval-alert-chip .chip-name { font-weight: 700; }
+.eval-alert-chip .chip-month {
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.eval-alert-chip .chip-month.m1 { background: #BFDBFE; color: #1D4ED8; }
+.eval-alert-chip .chip-month.m3 { background: #DDD6FE; color: #6D28D9; }
+.eval-alert-chip .chip-month.m5 { background: #99F6E4; color: #0F766E; }
+.eval-alert-chip .chip-dday { font-size: 10px; color: rgba(255,255,255,0.7); }
+.eval-alert-empty { font-size: 12px; color: rgba(255,255,255,0.6); padding-top: 2px; }
 .btn-join { color: #059669 !important; }
 .btn-join:hover { border-color: #059669 !important; background: #D1FAE5 !important; }
 .contract-milestone { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
@@ -777,7 +826,14 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
   </div>
 
   <!-- PAGE 6: CONTRACT MONITORING -->
-  <div class="page" id="page-contract" style="flex-direction:row;">
+  <div class="page" id="page-contract" style="flex-direction:column;overflow:hidden;">
+    <!-- 이번 달 평가 대상자 알림 -->
+    <div class="eval-alert-bar" id="evalAlertBar" style="display:none;">
+      <div class="eval-alert-title">🔔 이번 달 평가 대상자</div>
+      <div class="eval-alert-list" id="evalAlertList"></div>
+    </div>
+    <!-- 본문 좌우 분할 -->
+    <div style="display:flex;flex:1;overflow:hidden;">
     <!-- LEFT: contract list -->
     <div class="list-pane">
       <div class="topbar">
@@ -824,8 +880,10 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
       <div class="stage-blocks" id="contractBlocks" style="display:none;"></div>
     </div>
   </div>
+  </div><!-- end inner flex -->
+</div><!-- end page-contract -->
 
-</div>
+</div><!-- end .app -->
 
 <!-- REPORT MODAL -->
 <div class="modal-overlay" id="reportModal" style="display:none;" onclick="if(event.target===this)closeReport()">
@@ -926,6 +984,44 @@ td { padding: 10px 13px; font-size: 12px; vertical-align: middle; }
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeJoinModal()">취소</button>
       <button class="btn btn-primary" onclick="confirmJoin()">입사 완료 처리</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRACT EDIT MODAL -->
+<div class="modal-overlay" id="contractEditModal" style="display:none;" onclick="if(event.target===this)closeContractEdit()">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h2 class="modal-title">기본 정보 수정</h2>
+      <button class="modal-close" onclick="closeContractEdit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label class="form-label">이름</label>
+          <input class="form-input" id="ce_name" placeholder="이름">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">포지션</label>
+          <input class="form-input" id="ce_position" placeholder="예: MD, IMD...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">입사일</label>
+          <input class="form-input" type="date" id="ce_joinDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">계약서 작성일</label>
+          <input class="form-input" type="date" id="ce_contractDate">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">예상 직급</label>
+          <input class="form-input" id="ce_grade" placeholder="예: 대리, 사원">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeContractEdit()">취소</button>
+      <button class="btn btn-primary" onclick="saveContractEdit()">저장</button>
     </div>
   </div>
 </div>
@@ -1299,6 +1395,7 @@ window.confirmJoin = async function() {
     groupId: c.groupId || null,
     joinDate,
     joinedAt: new Date().toLocaleDateString('ko-KR',{year:'2-digit',month:'2-digit',day:'2-digit'}),
+    contractDate: '', // 계약서 작성일 (별도 입력)
     // 1/3/5개월 시점 데이터
     m1: { title: '', evaluator: '', result: '' },
     m3: { title: '', evaluator: '', result: '' },
@@ -1376,6 +1473,48 @@ function renderContractPage() {
 
   countEl.textContent = list.length;
 
+  // ── 이번 달 평가 대상자 알림 ──
+  const now = new Date();
+  const thisYear = now.getFullYear();
+  const thisMonth = now.getMonth(); // 0-based
+  const alertBar = document.getElementById('evalAlertBar');
+  const alertList = document.getElementById('evalAlertList');
+
+  const alertItems = [];
+  Object.values(contracts).forEach(c => {
+    [1, 3, 5].forEach(months => {
+      const d = calcMilestone(c.joinDate, months);
+      if (!d) return;
+      if (d.getFullYear() === thisYear && d.getMonth() === thisMonth) {
+        const key = `m${months}`;
+        const m = c[key] || {};
+        // 아직 통과/불통과 아닌 경우만 노출
+        if (m.result !== '통과' && m.result !== '불통과') {
+          const dday = getDday(d);
+          alertItems.push({ c, months, key, dday, date: d });
+        }
+      }
+    });
+  });
+
+  if (alertItems.length > 0) {
+    alertBar.style.display = 'flex';
+    alertList.innerHTML = alertItems
+      .sort((a,b) => a.date - b.date)
+      .map(item => {
+        const mCls = `m${item.months}`;
+        const ddayStr = item.dday ? item.dday.label : '';
+        return `<div class="eval-alert-chip" onclick="selectContract('${item.c.id}')">
+          <span class="chip-name">${item.c.name}</span>
+          <span class="chip-month ${mCls}">${item.months}개월</span>
+          <span class="chip-dday">${ddayStr}</span>
+        </div>`;
+      }).join('');
+  } else {
+    alertBar.style.display = 'flex';
+    alertList.innerHTML = `<span class="eval-alert-empty">이번 달 평가 대상자가 없습니다</span>`;
+  }
+
   if (!list.length) {
     tbody.innerHTML = '';
     empty.style.display = 'block';
@@ -1388,12 +1527,13 @@ function renderContractPage() {
     const dot = g ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${g.color};margin-right:6px;vertical-align:middle;"></span>` : '';
     return `<tr class="${selectedContractId===c.id?'active-row':''}" onclick="selectContract('${c.id}')">
       <td>${dot}${c.position||'—'}</td>
-      <td><div class="td-name">${c.name}</div><div class="td-sub">입사: ${c.joinDate||'—'}</div></td>
+      <td><div class="td-name">${c.name}</div><div class="td-sub">계약서: ${c.contractDate||'—'}</div></td>
       <td>${c.joinDate||'—'}</td>
       ${milestoneCell(c, 1)}
       ${milestoneCell(c, 3)}
       ${milestoneCell(c, 5)}
       <td onclick="event.stopPropagation()">
+        <button class="btn-icon" onclick="openContractEdit('${c.id}')" title="기본 정보 수정">✏️</button>
         <button class="btn-icon danger" onclick="deleteContract('${c.id}')" title="삭제">🗑</button>
       </td>
     </tr>`;
@@ -1426,7 +1566,13 @@ function renderContractPanel(c) {
 
   document.getElementById('contractBlocks').innerHTML = `
     <div class="contract-info-block">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;">기본 정보</span>
+        <button class="btn-icon" style="width:auto;padding:0 8px;font-size:11px;gap:4px;" onclick="openContractEdit('${c.id}')">✏️ 수정</button>
+      </div>
+      <div class="contract-info-row"><span class="contract-info-label">포지션</span><span class="contract-info-value">${c.position||'—'}</span></div>
       <div class="contract-info-row"><span class="contract-info-label">입사일</span><span class="contract-info-value">${c.joinDate||'—'}</span></div>
+      <div class="contract-info-row"><span class="contract-info-label">계약서 작성일</span><span class="contract-info-value">${c.contractDate||'—'}</span></div>
       <div class="contract-info-row"><span class="contract-info-label">근무 일수</span><span class="contract-info-value" style="color:var(--accent)">${totalDays}일째</span></div>
       <div class="contract-info-row"><span class="contract-info-label">계약 만료 예정</span><span class="contract-info-value">${formatDate(calcMilestone(c.joinDate, 6))}</span></div>
     </div>
@@ -1499,6 +1645,48 @@ window.deleteContract = async function(id) {
 
 window.closeContractDetail = function() {
   document.getElementById('contractDetailModal').style.display = 'none';
+};
+
+// ── 기본 정보 수정 ──
+let editingContractId = null;
+
+window.openContractEdit = function(id) {
+  const c = contracts[id];
+  if (!c) return;
+  editingContractId = id;
+  document.getElementById('ce_name').value = c.name || '';
+  document.getElementById('ce_position').value = c.position || '';
+  document.getElementById('ce_joinDate').value = c.joinDate || '';
+  document.getElementById('ce_contractDate').value = c.contractDate || '';
+  document.getElementById('ce_grade').value = c.grade || '';
+  document.getElementById('contractEditModal').style.display = 'flex';
+};
+
+window.closeContractEdit = function() {
+  document.getElementById('contractEditModal').style.display = 'none';
+  editingContractId = null;
+};
+
+window.saveContractEdit = async function() {
+  const id = editingContractId;
+  if (!id) return;
+  const c = contracts[id];
+  if (!c) return;
+
+  const updated = {
+    ...c,
+    name: document.getElementById('ce_name').value.trim() || c.name,
+    position: document.getElementById('ce_position').value.trim(),
+    joinDate: document.getElementById('ce_joinDate').value,
+    contractDate: document.getElementById('ce_contractDate').value,
+    grade: document.getElementById('ce_grade').value.trim(),
+  };
+
+  setSyncState('saving');
+  await set(ref(db, 'contracts/'+id), updated);
+  setSyncState('live');
+  toast('✅ 기본 정보가 수정되었습니다');
+  closeContractEdit();
 };
 function renderGroupSidebar() {
   const el = document.getElementById('groupList');
